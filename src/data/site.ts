@@ -1,12 +1,12 @@
 /**
- * Configuracion global del sitio: identidad, contacto, envio y redes.
+ * Configuración global del sitio: identidad, contacto, envío y redes.
  * Los campos marcados con PENDIENTE deben completarse antes de publicar.
  */
 
 export const SITE = {
   brand: 'Sant Hair+',
-  brandFull: 'Sant Hair+ Linea Capilar',
-  tagline: 'Linea Capilar',
+  brandFull: 'Sant Hair+ Línea Capilar',
+  tagline: 'Línea Capilar',
   description:
     'Cuidados capilares de autor. Shampoo, acondicionador y mascarilla formulados con activos puros, sin sulfatos y cruelty free.',
   url: 'https://santhair.com',
@@ -18,7 +18,7 @@ export const SITE = {
   phoneDisplay: '+57 300 000 0000',
   phoneHref: '+573000000000',
   whatsapp: '573000000000',
-  address: 'Bogota, Colombia',
+  address: 'Bogotá, Colombia',
 
   currency: 'COP',
   currencySymbol: '$',
@@ -27,15 +27,17 @@ export const SITE = {
   taxRate: 0.19,
 
   social: {
-    instagram: 'https://instagram com/santhair',
-    facebook: 'https://facebook com/santhair',
-    tiktok: 'https://tiktok com/@santhair',
-    youtube: 'https://youtube com/@santhair',
+    instagram: 'https://instagram.com/santhair',
+    facebook: 'https://facebook.com/santhair',
+    tiktok: 'https://tiktok.com/@santhair',
+    youtube: 'https://youtube.com/@santhair',
   },
 
   announcement: {
-    text: 'Envio gratis en pedidos superiores a $150.000',
+    text: 'Envío gratis en pedidos superiores a $150.000',
     code: 'SANT10',
+    /** Porcentaje de descuento que aplica el cupón de la barra superior. */
+    discountPercent: 10,
   },
 } as const;
 
@@ -43,11 +45,11 @@ export const FEATURES = [
   {
     icon: 'leaf',
     title: 'Activos Puros',
-    text: 'Formulas limpias, libres de sulfatos y siliconas',
+    text: 'Fórmulas limpias, libres de sulfatos y siliconas',
   },
   {
     icon: 'flask',
-    title: 'Testado Dermatologicamente',
+    title: 'Testado Dermatológicamente',
     text: 'Probado en cuero cabelludo sensible',
   },
   {
@@ -57,7 +59,7 @@ export const FEATURES = [
   },
   {
     icon: 'drop',
-    title: 'Todos los Tipos de Cabello',
+    title: 'Todos los tipos de cabello',
     text: 'Cuidado suave y efectivo',
   },
 ] as const;
@@ -66,14 +68,14 @@ export const FOOTER_LINKS = [
   {
     title: 'Tienda',
     links: [
-      { label: 'Todo el catalogo', href: '/tienda' },
+      { label: 'Todo el catálogo', href: '/tienda' },
       { label: 'Shampoos', href: '/tienda?categoria=shampoos' },
       { label: 'Acondicionadores', href: '/tienda?categoria=acondicionadores' },
       { label: 'Mascarillas', href: '/tienda?categoria=mascarillas' },
     ],
   },
   {
-    title: 'Compania',
+    title: 'Compañía',
     links: [
       { label: 'Sobre nosotros', href: '/nosotros' },
       { label: 'Blog', href: '/blog' },
@@ -84,9 +86,9 @@ export const FOOTER_LINKS = [
   {
     title: 'Ayuda',
     links: [
-      { label: 'Politica de privacidad', href: '/legal/privacidad' },
-      { label: 'Terminos y condiciones', href: '/legal/terminos' },
-      { label: 'Politica de envios', href: '/legal/envios' },
+      { label: 'Política de privacidad', href: '/legal/privacidad' },
+      { label: 'Términos y condiciones', href: '/legal/terminos' },
+      { label: 'Política de envíos', href: '/legal/envios' },
       { label: 'Cambios y devoluciones', href: '/legal/devoluciones' },
     ],
   },

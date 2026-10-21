@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { BLOG_POSTS } from '@/data/content';
+import { breadcrumbSchema } from '@/lib/seo';
 
 const formatDate = (value: string) =>
   new Intl.DateTimeFormat('es-CO', {
@@ -8,11 +9,17 @@ const formatDate = (value: string) =>
     month: 'long',
     year: 'numeric',
   }).format(new Date(`${value}T12:00:00Z`));
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Blog', href: '/blog' },
+];
 ---
 
 <BaseLayout
-  title="Blog"
-  description="Consejos de cuidado capilar, guias de rutina y articulos sobre ingredientes， el equipo de Sant Hair+."
+  title="Blog de cuidado capilar | Sant Hair+"
+  description="Consejos de cuidado capilar, guías de rutina y artículos sobre ingredientes, el equipo de Sant Hair+."
+  schema={breadcrumbSchema(breadcrumbs)}
 >
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
@@ -26,7 +33,7 @@ const formatDate = (value: string) =>
     <div class="container">
       <div class="section-head section-head--center">
         <div>
-          <p class="eyebrow">Ideas y guias</p>
+          <p class="eyebrow">Ideas y guías</p>
           <h1 class="display-2">El blog</h1>
           <p class="lede" style="text-align:center">
             Todo lo que aprendemos del cuidado capilar, explicado sin vueltas.
@@ -42,8 +49,8 @@ const formatDate = (value: string) =>
                 <img
                   src={post.cover}
                   alt={post.title}
-                  width="600"
-                  height="375"
+                  width="1200"
+                  height="750"
                   loading="lazy"
                 />
               </a>
@@ -57,7 +64,7 @@ const formatDate = (value: string) =>
               </h2>
               <p style="color:var(--text-2);font-size:.95rem">{post.excerpt}</p>
               <a class="link-underline" href={`/blog/${post.slug}`} style="margin-top:.85rem">
-                Leer articulo
+                Leer artículo
               </a>
             </article>
           ))

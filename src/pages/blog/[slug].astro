@@ -1,12 +1,14 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { BLOG_POSTS } from '@/data/content';
+import { articleSchema, breadcrumbSchema } from '@/lib/seo';
 
 const { slug } = Astro.params;
 const post = BLOG_POSTS.find((p) => p.slug === slug);
 
+// Un articulo inexistente es un 404 real, no una redireccion a /blog.
 if (!post) {
-  return Astro.redirect('/blog');
+  return Astro.rewrite('/404');
 }
 
 const others = BLOG_POSTS.filter((p) => p.slug !== post.slug).slice(0, 2);
@@ -17,12 +19,20 @@ const formatDate = (value: string) =>
     month: 'long',
     year: 'numeric',
   }).format(new Date(`${value}T12:00:00Z`));
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Blog', href: '/blog' },
+  { name: post.title, href: `/blog/${post.slug}` },
+];
 ---
 
 <BaseLayout
   title={post.title}
   description={post.excerpt}
   image={post.cover}
+  ogType="article"
+  schema={[articleSchema(post), breadcrumbSchema(breadcrumbs)]}
 >
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
@@ -53,9 +63,10 @@ const formatDate = (value: string) =>
         <img
           src={post.cover}
           alt={post.title}
-          width="1024"
-          height="768"
+          width="1200"
+          height="750"
           loading="eager"
+          fetchpriority="high"
         />
       </div>
 
@@ -72,7 +83,7 @@ const formatDate = (value: string) =>
             Lleva la rutina a casa
           </h2>
           <p style="color:var(--muted);font-size:.92rem">
-            Descubre los tres productos de la linea Sant Hair+.
+            Descubre los tres productos de la línea Sant Hair+.
           </p>
         </div>
         <a class="btn" href="/tienda">Ir a la tienda</a>
@@ -87,7 +98,7 @@ const formatDate = (value: string) =>
           <div class="section-head">
             <div>
               <p class="eyebrow">Sigue leyendo</p>
-              <h2 class="section-head__title">Otros articulos</h2>
+              <h2 class="section-head__title">Otros artículos</h2>
             </div>
             <a class="link-underline" href="/blog">Ver todo</a>
           </div>
@@ -98,8 +109,8 @@ const formatDate = (value: string) =>
                   <img
                     src={item.cover}
                     alt={item.title}
-                    width="600"
-                    height="375"
+                    width="1200"
+                    height="750"
                     loading="lazy"
                   />
                 </a>

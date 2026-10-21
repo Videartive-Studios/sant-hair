@@ -3,11 +3,13 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
 import { FAQS } from '@/data/content';
 import { SITE } from '@/data/site';
+import { faqSchema } from '@/lib/seo';
 ---
 
 <BaseLayout
   title="Contacto"
-  description="Escribenos a Sant Hair+. Resolvemos tus dudas sobre productos, pedidos, envios y la rutina es la ideal para tu cabello. Atencion por WhatsApp y correo."
+  description="Escríbenos a Sant Hair+. Resolvemos tus dudas sobre productos, pedidos, envíos y la rutina es la ideal para tu cabello. Atención por WhatsApp y correo."
+  schema={faqSchema(FAQS)}
 >
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
@@ -24,8 +26,8 @@ import { SITE } from '@/data/site';
           <p class="eyebrow">Estamos para ayudarte</p>
           <h1 class="display-2">Contacto</h1>
           <p class="lede" style="text-align:center">
-            Respondemos en menos de 24 horas habiles. Si prefieres, escribenos por
-            WhatsApp: es la forma mas rapida.
+            Respondemos en menos de 24 horas hábiles. Si prefieres, escríbenos por
+            WhatsApp: es la forma más rápida.
           </p>
         </div>
       </div>
@@ -37,24 +39,47 @@ import { SITE } from '@/data/site';
             <div class="form-grid">
               <div class="field">
                 <label for="nombre">Nombre</label>
-                <input class="input" id="nombre" name="nombre" type="text" required />
+                <input
+                  class="input"
+                  id="nombre"
+                  name="nombre"
+                  type="text"
+                  required
+                  autocomplete="name"
+                  maxlength="120"
+                />
               </div>
               <div class="field">
-                <label for="email">Correo electronico</label>
-                <input class="input" id="email" name="email" type="email" required />
+                <label for="email">Correo electrónico</label>
+                <input
+                  class="input"
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  autocomplete="email"
+                  maxlength="160"
+                />
               </div>
               <div class="field">
-                <label for="telefono">Telefono / WhatsApp</label>
-                <input class="input" id="telefono" name="telefono" type="tel" />
+                <label for="telefono">Teléfono / WhatsApp</label>
+                <input
+                  class="input"
+                  id="telefono"
+                  name="telefono"
+                  type="tel"
+                  autocomplete="tel"
+                  maxlength="40"
+                />
               </div>
               <div class="field">
                 <label for="asunto">Asunto</label>
                 <select class="select" id="asunto" name="asunto">
                   <option value="Consulta general">Consulta general</option>
                   <option value="Estado de mi pedido">Estado de mi pedido</option>
-                  <option value="Asesoria de rutina">Asesoria de rutina</option>
+                  <option value="Asesoria de rutina">Asesoría de rutina</option>
                   <option value="Cambios y devoluciones">Cambios y devoluciones</option>
-                  <option value="Distribucion y mayorista">Distribucion y mayorista</option>
+                  <option value="Distribucion y mayorista">Distribución y mayorista</option>
                 </select>
               </div>
               <div class="field span-2">
@@ -63,8 +88,9 @@ import { SITE } from '@/data/site';
                   class="textarea"
                   id="mensaje"
                   name="mensaje"
-                  placeholder="Cuentanos como podemos ayudarte"
-                  required></textarea>
+                  placeholder="Cuéntanos cómo podemos ayudarte"
+                  required
+                  maxlength="4000"></textarea>
               </div>
             </div>
 
@@ -79,13 +105,18 @@ import { SITE } from '@/data/site';
         <!-- ============ DATOS ============ -->
         <aside class="stack stack-3">
           <div class="summary-card">
-            <h2 class="summary-card__title">Escribenos</h2>
+            <h2 class="summary-card__title">Escríbenos</h2>
             <ul class="stack stack-3" style="gap:1.25rem">
               <li class="feature" style="gap:.85rem">
                 <Icon name="whatsapp" size={26} class="feature__icon" />
                 <div>
                   <p class="feature__title">WhatsApp</p>
-                  <a href={`https://wa.me/${SITE.whatsapp}`} class="link-underline" target="_blank" rel="noopener">
+                  <a
+                    href={`https://wa.me/${SITE.whatsapp}`}
+                    class="link-underline"
+                    target="_blank"
+                    rel="noopener"
+                  >
                     {SITE.phoneDisplay}
                   </a>
                 </div>
@@ -93,7 +124,7 @@ import { SITE } from '@/data/site';
               <li class="feature" style="gap:.85rem">
                 <Icon name="mail" size={26} class="feature__icon" />
                 <div>
-                  <p class="feature__title">Correo electronico</p>
+                  <p class="feature__title">Correo electrónico</p>
                   <a href={`mailto:${SITE.email}`} class="link-underline">
                     {SITE.email}
                   </a>
@@ -102,15 +133,15 @@ import { SITE } from '@/data/site';
               <li class="feature" style="gap:.85rem">
                 <Icon name="truck" size={26} class="feature__icon" />
                 <div>
-                  <p class="feature__title">Envios</p>
+                  <p class="feature__title">Envíos</p>
                   <p style="font-size:.9rem;color:var(--muted)">
-                    Envios a todo Colombia y America Latina. Gratis desde{' '}
+                    Envíos a todo Colombia y América Latina. Gratis desde{' '}
                     {new Intl.NumberFormat('es-CO', {
                       style: 'currency',
                       currency: SITE.currency,
                       maximumFractionDigits: 0,
                     }).format(SITE.freeShippingThreshold)}
-.
+                    .
                   </p>
                 </div>
               </li>
@@ -119,11 +150,11 @@ import { SITE } from '@/data/site';
 
           <div class="summary-card" style="background:var(--ink);color:var(--cream);border:none">
             <h2 class="summary-card__title" style="color:var(--gold-soft)">
-              Asesoria de rutina
+              Asesoría de rutina
             </h2>
             <p style="color:rgba(246,242,234,.72);font-size:.93rem">
-              No sabes que producto es el tuyo? Cuentanos como es tu cabello y te
-              recomendamos la rutina. Respondemos personally.
+              ¿No sabes qué producto es el tuyo? Cuéntanos cómo es tu cabello y te
+              recomendamos la rutina. Respondemos personalmente.
             </p>
             <a
               class="btn btn--gold"
@@ -172,8 +203,12 @@ import { SITE } from '@/data/site';
 </BaseLayout>
 
 <script>
+  import { escapeHtml } from '@/lib/escape';
+
   const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
   const result = document.querySelector<HTMLElement>('[data-contact-result]');
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -183,6 +218,15 @@ import { SITE } from '@/data/site';
       if (result) {
         result.innerHTML =
           '<p class="notice notice--error">Completa nombre, correo y mensaje.</p>';
+      }
+      return;
+    }
+
+    const email = String(data.email ?? '').trim();
+    if (!EMAIL_RE.test(email)) {
+      if (result) {
+        result.innerHTML =
+          '<p class="notice notice--error">Escribe un correo electrónico válido.</p>';
       }
       return;
     }
@@ -206,7 +250,7 @@ import { SITE } from '@/data/site';
       form.reset();
     } catch (error) {
       if (result) {
-        result.innerHTML = `<p class="notice notice--error">${(error as Error).message}</p>`;
+        result.innerHTML = `<p class="notice notice--error">${escapeHtml((error as Error).message)}</p>`;
       }
     } finally {
       if (button) button.removeAttribute('disabled');

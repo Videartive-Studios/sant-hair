@@ -23,7 +23,7 @@ const isActive = (href: string) =>
         class="icon-btn header__burger"
         type="button"
         data-menu-open
-        aria-label="Abrir menu"
+        aria-label="Abrir menú"
         aria-expanded="false"
       >
         <Icon name="menu" size={22} />
@@ -39,7 +39,7 @@ const isActive = (href: string) =>
       </a>
     </div>
 
-    <nav class="nav" aria-label="Navegacion principal">
+    <nav class="nav" aria-label="Navegación principal">
       {
         links.map((link) => (
           <a
@@ -54,10 +54,10 @@ const isActive = (href: string) =>
     </nav>
 
     <div class="header__actions">
-      <a class="icon-btn" href="/tienda" aria-label="Buscar productos">
+      <a class="icon-btn" href="/tienda" aria-label="Ver la tienda">
         <Icon name="search" size={20} />
       </a>
-      <a class="icon-btn icon-btn--user" href="/contacto" aria-label="Mi cuenta">
+      <a class="icon-btn icon-btn--user" href="/contacto" aria-label="Contacto y asesoría">
         <Icon name="user" size={20} />
       </a>
       <button class="icon-btn" type="button" data-cart-open aria-label="Abrir carrito">
@@ -78,7 +78,7 @@ const isActive = (href: string) =>
     <Icon name="close" size={24} />
   </button>
 
-  <nav aria-label="Navegacion movil">
+  <nav aria-label="Navegación móvil">
     {
       links.map((link, index) => (
         <a

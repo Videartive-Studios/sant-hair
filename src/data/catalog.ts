@@ -1,6 +1,6 @@
 /**
- * Catalogo de productos. Esta es la semilla (seed) que se carga en la base de
- * datos (Netlify Blobs) la primera vez que el sitio arranca. Despues, la
+ * Catálogo de productos. Esta es la semilla (seed) que se carga en la base de
+ * datos (Netlify Blobs) la primera vez que el sitio arranca. Después, la
  * base de datos manda y estos valores solo sirven como respaldo.
  */
 
@@ -47,27 +47,27 @@ export const CATEGORIES: Category[] = [
     image: '/img/producto-shampoo.webp',
     seoTitle: 'Shampoos Sant Hair+ | Limpieza sin sulfatos',
     seoDescription:
-      'Shampoos de la linea Sant Hair+ con keratina vegetal, pantenol y biotina. Limpieza profunda, sin sulfatos ni siliconas.',
+      'Shampoos de la línea Sant Hair+ con queratina vegetal, pantenol y biotina. Limpieza profunda, sin sulfatos ni siliconas.',
   },
   {
     id: 'cat-acondicionadores',
     slug: 'acondicionadores',
     name: 'Acondicionadores',
-    description: 'Desenreda, nutre y sella la cuticula sin pesar.',
+    description: 'Desenreda, nutre y sella la cutícula sin pesar.',
     image: '/img/producto-acondicionador.webp',
     seoTitle: 'Acondicionadores Sant Hair+ | Desenreda y nutre',
     seoDescription:
-      'Acondicionadores Sant Hair+ de textura ligera con manteca de karite y keratina vegetal. Desenreda y nutre sin efecto grasa.',
+      'Acondicionadores Sant Hair+ de textura ligera con manteca de karité y queratina vegetal. Desenreda y nutre sin efecto grasa.',
   },
   {
     id: 'cat-mascarillas',
     slug: 'mascarillas',
     name: 'Mascarillas',
-    description: 'Reparacion profunda para cabellos danados.',
+    description: 'Reparación profunda para cabellos dañados.',
     image: '/img/producto-mascarilla.webp',
-    seoTitle: 'Mascarillas capilares Sant Hair+ | Reparacion profunda',
+    seoTitle: 'Mascarillas capilares Sant Hair+ | Reparación profunda',
     seoDescription:
-      'Mascarillas capilares Sant Hair+ con manteca de karite y keratina vegetal. Ritual de reparacion profunda para cabellos danados.',
+      'Mascarillas capilares Sant Hair+ con manteca de karité y queratina vegetal. Ritual de reparación profunda para cabellos dañados.',
   },
 ];
 
@@ -76,7 +76,7 @@ export const PRODUCTS: Product[] = [
     id: 'prd-shampoo',
     slug: 'shampoo-nutritivo-sant-hair',
     name: 'Shampoo Nutritivo',
-    subtitle: 'Limpieza profunda sin agresivo',
+    subtitle: 'Limpieza profunda sin agresividad',
     category: 'shampoos',
     price: 54_900,
     compareAtPrice: 64_900,
@@ -88,16 +88,16 @@ export const PRODUCTS: Product[] = [
       '/img/mockup-claro.webp',
       '/img/mascarilla-detalle.webp',
     ],
-    badge: 'Mas vendido',
+    badge: 'Más vendido',
     shortDescription:
       'Limpia en profundidad, respeta la fibra capilar y deja el cabello suelto y con brillo.',
     description:
-      'Un shampoo de uso diario pensado para cabellos que se ven opacos, secos o con exceso de producto. Su formula a base de tensioactivos suaves, sin sulfatos, limpia la piel del cuero cabelludo en profundidad sin arrastrar los hidratos de la fibra capilar, respetando la cuticula y el color. La keratina vegetal reconstruye el cabello durante el lavado, el pantenol devuelve flexibilidad y la biotina fortalece la raiz. El resultado es un cabello limpio, ligero y con brillo natural, sin la sensacion de tirantez que deja un lavado agresivo.',
+      'Un shampoo de uso diario pensado para cabellos que se ven opacos, secos o con exceso de producto. Su fórmula a base de tensioactivos suaves, sin sulfatos, limpia la piel del cuero cabelludo en profundidad sin arrastrar los hidratos de la fibra capilar, respetando la cutícula y el color. La queratina vegetal reconstruye el cabello durante el lavado, el pantenol devuelve flexibilidad y la biotina fortalece la raíz. El resultado es un cabello limpio, ligero y con brillo natural, sin la sensación de tirantez que deja un lavado agresivo.',
     benefits: [
       'Limpieza profunda sin sulfatos ni siliconas',
-      'Keratina vegetal que refuerza la fibra capilar',
-      'Pantenol y biotina para brillo y nutricion',
-      'No reseca ni estrapa el cabello rizado',
+      'Queratina vegetal que refuerza la fibra capilar',
+      'Pantenol y biotina para brillo y nutrición',
+      'No reseca ni estira el cabello rizado',
       'Apto para uso diario y cabellos tratados con color',
     ],
     ingredients: [
@@ -106,17 +106,17 @@ export const PRODUCTS: Product[] = [
       'Laureato de etilo cocoato',
       'Glicerina vegetal',
       'Pantenol (provitamina B5)',
-      'Keratina vegetal hidrolizada',
+      'Queratina vegetal hidrolizada',
       'Biotina',
-      'Extracto de raiz de ginseng',
-      'Acido hialuronico de bajo peso molecular',
+      'Extracto de raíz de ginseng',
+      'Ácido hialurónico de bajo peso molecular',
       'Conservantes de origen vegetal',
     ],
     howToUse:
-      'Aplica una moneda generosa sobre el cabello humedo, masajea el cuero cabelludo con las yemas durante 30 segundos y enjuaga. Repite el lavado solo si es necesario. Para un ritual completo, sigue con el Acondicionador Suave.',
+      'Aplica una moneda generosa sobre el cabello húmedo, masajea el cuero cabelludo con las yemas durante 30 segundos y enjuaga. Repite el lavado solo si es necesario. Para un ritual completo, sigue con el Acondicionador Suave.',
     seoTitle: 'Shampoo Nutritivo Sant Hair+ 300 ml | Sin sulfatos',
     seoDescription:
-      'Shampoo nutritivo de la linea Sant Hair+ con keratina vegetal, pantenol y biotina. Limpieza profunda sin resecar. 300 ml.',
+      'Shampoo nutritivo de la línea Sant Hair+ con queratina vegetal, pantenol y biotina. Limpieza profunda sin resecar. 300 ml.',
     featured: true,
     published: true,
   },
@@ -137,33 +137,33 @@ export const PRODUCTS: Product[] = [
     ],
     badge: 'Nuevo',
     shortDescription:
-      'Textura ligera que desenreda al instante y sella la cuticula sin dejar efecto grasa.',
+      'Textura ligera que desenreda al instante y sella la cutícula sin dejar efecto grasa.',
     description:
-      'Un acondicionador de textura ligera pensado para cabellos que se enredan facil y que huyen de los productos densos. Su base de manteca de karite y aceites vegetales ligeros forma una pelicula delgada sobre la fibra que facilita el deslizamiento del peine y sella la cuticula, reduciendo la estatica y el frizz. La keratina vegetal aporta cuerpo y el acido hialuronico mantiene la hidratacion sin pesadez. Se absorbe rapido: el cabello queda suelto, suave y con brillo, nunca con efecto grasa.',
+      'Un acondicionador de textura ligera pensado para cabellos que se enredan fácil y que huyen de los productos densos. Su base de manteca de karité y aceites vegetales ligeros forma una película delgada sobre la fibra que facilita el deslizamiento del peine y sella la cutícula, reduciendo la estática y el frizz. La queratina vegetal aporta cuerpo y el ácido hialurónico mantiene la hidratación sin pesadez. Se absorbe rápido: el cabello queda suelto, suave y con brillo, nunca con efecto grasa.',
     benefits: [
       'Desenreda en un solo paso, incluso en cabello mojado',
-      'Sella la cuticula y controla el frizz y la estatica',
-      'Manteca de karite y keratina vegetal de origen etico',
-      'Textura ligera: sin efecto grasa ni acumulacion',
+      'Sella la cutícula y controla el frizz y la estática',
+      'Manteca de karité y queratina vegetal de origen ético',
+      'Textura ligera: sin efecto grasa ni acumulación',
       'Ideal para cabellos finos, rizados y extensiones',
     ],
     ingredients: [
       'Agua',
       'Cetearil alcohol (vegetal)',
-      'Manteca de karite',
+      'Manteca de karité',
       'Aceite de coco',
       'Mantequilla de mango',
-      'Keratina vegetal hidrolizada',
-      'Acido hialuronico',
-      'Proteinas de seda',
+      'Queratina vegetal hidrolizada',
+      'Ácido hialurónico',
+      'Proteínas de seda',
       'Extracto de aloe vera',
       'Vitamina E',
     ],
     howToUse:
-      'Aplica de medios a extremos sobre el cabello escurrido despues del shampoo. Deja actuar de 2 a 3 minutos y enjuaga con agua fria. En cabello muy grueso o poroso, puede dejarse actuar hasta 5 minutos.',
+      'Aplica de medios a extremos sobre el cabello escurrido después del shampoo. Deja actuar de 2 a 3 minutos y enjuaga con agua fría. En cabello muy grueso o poroso, puede dejarse actuar hasta 5 minutos.',
     seoTitle: 'Acondicionador Suave Sant Hair+ 300 ml | Desenreda y nutre',
     seoDescription:
-      'Acondicionador de textura ligera con manteca de karite y keratina vegetal. Desenreda, sella la cuticula y controla el frizz. 300 ml.',
+      'Acondicionador de textura ligera con manteca de karité y queratina vegetal. Desenreda, sella la cutícula y controla el frizz. 300 ml.',
     featured: true,
     published: true,
   },
@@ -171,7 +171,7 @@ export const PRODUCTS: Product[] = [
     id: 'prd-mascarilla',
     slug: 'mascarilla-intensiva-sant-hair',
     name: 'Mascarilla Intensiva',
-    subtitle: 'Ritual de reparacion profunda',
+    subtitle: 'Ritual de reparación profunda',
     category: 'mascarillas',
     price: 78_900,
     compareAtPrice: 89_900,
@@ -185,33 +185,33 @@ export const PRODUCTS: Product[] = [
     ],
     badge: 'Ritual semanal',
     shortDescription:
-      'Reparacion profunda para cabellos danados por calor, color o quimica.',
+      'Reparación profunda para cabellos dañados por calor, color o química.',
     description:
-      'La etapa mas profunda del ritual Sant Hair+. Esta mascarilla combina manteca de karite, miel de azahar y keratina vegetal en una textura densa que repara el dano visible: cuticulas levantadas, sequedad extrema y falta de movimiento. En uso semanal, ayuda a reconstruir los enlaces debilitados por decoloracion, planchas o tratamientos quimicos, devolviendo al cabello su textura, resistencia y brillo. El resultado es un cabello que se peina facil y que se siente mas sano desde la raiz hasta las puntas.',
+      'La etapa más profunda del ritual Sant Hair+. Esta mascarilla combina manteca de karité, miel de azahar y queratina vegetal en una textura densa que repara el daño visible: cutículas levantadas, sequedad extrema y falta de movimiento. En uso semanal, ayuda a reconstruir los enlaces debilitados por decoloración, planchas o tratamientos químicos, devolviendo al cabello su textura, resistencia y brillo. El resultado es un cabello que se peina fácil y que se siente más sano desde la raíz hasta las puntas.',
     benefits: [
-      'Repara el dano por calor, color y tratamientos quimicos',
-      'Reconstruye la cuticula y aporta resistencia',
-      'Miel de azahar y manteca de karite en alta concentracion',
+      'Repara el daño por calor, color y tratamientos químicos',
+      'Reconstruye la cutícula y aporta resistencia',
+      'Miel de azahar y manteca de karité en alta concentración',
       'Devuelve brillo y movimiento al cabello apagado',
-      'Uso semanal: una vez cada 7 dias',
+      'Uso semanal: una vez cada 7 días',
     ],
     ingredients: [
       'Agua',
-      'Manteca de karite',
+      'Manteca de karité',
       'Miel de azahar',
       'Cera de candelilla',
-      'Keratina vegetal hidrolizada',
-      'Proteinas de seda',
+      'Queratina vegetal hidrolizada',
+      'Proteínas de seda',
       'Aceite de argan',
       'Vitamina E',
       'Extracto de romero',
-      'Alantoina',
+      'Alantoína',
     ],
     howToUse:
-      'Aplica una cantidad generosa sobre el cabello limpio y escurrido, de la media longitud hacia las puntas. Distribuye con los dedos y deja actuar de 5 a 10 minutos, o toda la noche en el caso de cabello muy danado. Enjuaga con agua fria. Usa una vez por semana.',
-    seoTitle: 'Mascarilla Intensiva Sant Hair+ 250 ml | Reparacion profunda',
+      'Aplica una cantidad generosa sobre el cabello limpio y escurrido, de la media longitud hacia las puntas. Distribuye con los dedos y deja actuar de 5 a 10 minutos, o toda la noche en el caso de cabello muy dañado. Enjuaga con agua fría. Usa una vez por semana.',
+    seoTitle: 'Mascarilla Intensiva Sant Hair+ 250 ml | Reparación profunda',
     seoDescription:
-      'Mascarilla capilar de reparacion profunda con manteca de karite, miel de azahar y keratina vegetal. Para cabellos danados. 250 ml.',
+      'Mascarilla capilar de reparación profunda con manteca de karité, miel de azahar y queratina vegetal. Para cabellos dañados. 250 ml.',
     featured: true,
     published: true,
   },

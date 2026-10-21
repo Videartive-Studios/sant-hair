@@ -1,0 +1,17 @@
+---
+/**
+ * Inserta un bloque de datos estructurados JSON-LD en el HTML.
+ * Uso: <JsonLd data={schema} />
+ */
+interface Props {
+  data: unknown;
+}
+
+const { data } = Astro.props;
+
+// `JSON.stringify` con el reemplazo de `<` evita que un "</script>" dentro de
+// los datos cierre antes de tiempo la etiqueta del script.
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+---
+
+<script type="application/ld+json" set:html={json} />

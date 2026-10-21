@@ -3,11 +3,18 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
 import { FEATURES } from '@/data/site';
 import { TESTIMONIALS } from '@/data/content';
+import { breadcrumbSchema } from '@/lib/seo';
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Nosotros', href: '/nosotros' },
+];
 ---
 
 <BaseLayout
   title="Sobre nosotros"
-  description="Conoce Sant Hair+: una linea capilar de formulacion limpia, creada para tratar el cabello real. Nuestra historia, nuestros principios y nuestro Compromiso."
+  description="Conoce Sant Hair+: una línea capilar de formulación limpia, creada para tratar el cabello real. Nuestra historia, nuestros principios y nuestro compromiso."
+  schema={breadcrumbSchema(breadcrumbs)}
 >
   <section class="hero" style="background:linear-gradient(115deg,#0b0b0a 0%,#1a1712 60%,#241f18 100%)">
     <div class="container hero__inner" style="color:var(--cream)">
@@ -15,19 +22,19 @@ import { TESTIMONIALS } from '@/data/content';
         <p class="eyebrow" style="color:var(--gold-soft)">Nuestra historia</p>
         <h1 class="display-1 hero__title">
           Nació de un cabello
-          <em style="color:var(--gold-soft)">que ya no respondia.</em>
+          <em style="color:var(--gold-soft)">que ya no respondía.</em>
         </h1>
         <p class="lede" style="color:rgba(246,242,234,.72)">
-          Sant Hair+ nacio de una pregunta simple: si el mercado solo ofrece
-          productos que prometen mucho y Moisturizan poco, por que no formular lo
-          contrario? Menos ingredientes, mas evidencia, resultados que se noten.
+          Sant Hair+ nació de una pregunta simple: si el mercado solo ofrece
+          productos que prometen mucho y humectan poco, ¿por qué no formular lo
+          contrario? Menos ingredientes, más evidencia, resultados que se noten.
         </p>
       </div>
       <div class="hero__media hero__media--logo">
         <div class="hero__glow"></div>
         <img
           src="/img/logo-horizontal.webp"
-          alt="Sant Hair+ Linea Capilar"
+          alt="Sant Hair+ Línea Capilar"
           width="630"
           height="173"
           loading="eager"
@@ -41,29 +48,29 @@ import { TESTIMONIALS } from '@/data/content';
       <div class="split">
         <div class="figura-fraccos">
           <img
-            src="/img/hero-fraccos.webp"
-            alt="Linea Sant Hair+"
-            width="984"
-            height="844"
+            src="/img/mockup-negro-2.webp"
+            alt="Línea Sant Hair+"
+            width="992"
+            height="1056"
             loading="lazy"
           />
         </div>
         <div class="stack stack-3">
           <p class="eyebrow">Lo que creemos</p>
-          <h2 class="display-2">Cuidado capilar, sin tambien de mas.</h2>
+          <h2 class="display-2">Cuidado capilar, sin talk de más.</h2>
           <p style="color:var(--text-2)">
             Creemos en el poder de los ingredientes que se pueden leer y entender. Por
-            eso nuestra linea es deliberadamente corta: tres productos, tres funciones
-            clara, cero formulas de relleno. Shampoo que limpia sin destruir,
+            eso nuestra línea es deliberadamente corta: tres productos, tres funciones
+            claras, cero fórmulas de relleno. Shampoo que limpia sin destruir,
             acondicionador que desenreda sin pesar, y una mascarilla que repara de verdad.
           </p>
           <p style="color:var(--text-2)">
             No creemos en las promesas imposibles. Creemos en rutinas que se sostienen
-            en el tiempo, en formulas que se pueden justificar ingrediente a
+            en el tiempo, en fórmulas que se pueden justificar ingrediente a
             ingrediente y en un producto que se siente bien desde el primer uso.
           </p>
           <div class="cluster" style="gap:.85rem">
-            <a class="btn" href="/tienda">Ver la linea</a>
+            <a class="btn" href="/tienda">Ver la línea</a>
             <a class="btn btn--light" href="/blog">Leer el blog</a>
           </div>
         </div>
@@ -135,13 +142,13 @@ import { TESTIMONIALS } from '@/data/content';
   <section class="promo">
     <div class="container promo__inner">
       <div>
-        <p class="eyebrow">Empieza por aqui</p>
+        <p class="eyebrow">Empieza por aquí</p>
         <h2 class="promo__title">
           Tu rutina empieza
           <em>con un solo paso</em>
         </h2>
         <p class="lede">
-          Si no sabes por donde empezar, empieza por el Shampoo Nutritivo. Es el paso
+          Si no sabes por dónde empezar, empieza por el Shampoo Nutritivo. Es el paso
           que cambia el resto del ritual.
         </p>
         <div class="hero__actions">
@@ -150,10 +157,10 @@ import { TESTIMONIALS } from '@/data/content';
       </div>
       <div class="promo__media">
         <img
-          src="/img/hero-fraccos.webp"
+          src="/img/mockup-negro-hoja.webp"
           alt="Productos Sant Hair+"
-          width="984"
-          height="844"
+          width="1024"
+          height="1024"
           loading="lazy"
         />
       </div>

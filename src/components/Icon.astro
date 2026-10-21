@@ -8,9 +8,10 @@ interface Props {
   size?: number | string;
   class?: string;
   fill?: boolean;
+  style?: string;
 }
 
-const { name, size = 24, class: className, fill = false } = Astro.props;
+const { name, size = 24, class: className, fill = false, style } = Astro.props;
 
 const paths: Record<string, string> = {
   search:
@@ -65,7 +66,7 @@ const paths: Record<string, string> = {
 ---
 
 <svg
-  xmlns="http://www w3.org/2000/svg"
+  xmlns="http://www.w3.org/2000/svg"
   width={size}
   height={size}
   viewBox="0 0 24 24"
@@ -75,6 +76,7 @@ const paths: Record<string, string> = {
   stroke-linecap="round"
   stroke-linejoin="round"
   class={className}
+  style={style}
   aria-hidden="true"
   focusable="false"
   set:html={paths[name] ?? ''}
