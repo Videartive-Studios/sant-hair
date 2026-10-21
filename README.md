@@ -110,26 +110,34 @@ Sesión por cookie `httpOnly` firmada con HMAC, válida 8 horas.
 
 ## 5. Despliegue en Netlify
 
-1. Crea un repositorio con **la carpeta `public_html` como raíz** (el proyecto
-   Astro es esa carpeta). La carpeta `Web/` madre contiene `datos acceso txt` con
-   credenciales reales: **déjala fuera del repositorio**.
-2. En Netlify: **Add new site → Import an existing project** y elige el repositorio.
-3. Configuración:
-   - **Base directory**: `public_html` (o vacío, si el repositorio ya es `public_html`)
+El repositorio es **https://github.com/Videartive-Studios/sant-hair** y su
+raíz es ya la raíz del proyecto Astro.
+
+1. En Netlify: **Add new site → Import an existing project** y elige
+   `Videartive-Studios/sant-hair`.
+2. Configuración (la mayoría ya viene en `netlify.toml`):
+   - **Base directory**: *(vacío)*
    - **Build command**: `npm run build`
-   - **Publish directory**: `public_html/dist`
-   - **Node version**: `24` (ya está en `netlify toml`)
-4. En **Site settings → Environment variables** define:
+   - **Publish directory**: `dist`
+   - **Node version**: `24`
+3. En **Site settings → Environment variables** define:
    - `ADMIN_PASSWORD` → contraseña del panel.
    - `ADMIN_SECRET` → cadena aleatoria larga (se usa para firmar las sesiones).
-5. Despliega.
+4. Despliega.
 
-`netlify toml` ya incluye el comando de build, el directorio de publicación, las
+Netlify detecta el framework Astro automáticamente; si lo hace, la configuración
+anterior se rellena sola.
+
+> **Credenciales:** el archivo `datos acceso.txt` (WordPress y webmail) vive en
+> la carpeta `Web/` madre, **fuera** del repositorio, y nunca se ha subido.
+> El archivo `.env` local tampoco se versiona: solo se publica `.env.example`.
+
+`netlify.toml` ya incluye el comando de build, el directorio de publicación, las
 cabeceras de seguridad y las reglas de caché de imágenes y fuentes.
 
 > **Sobre las funciones:** el adaptador `@astrojs/netlify` v8 genera la función
 > SSR en `.netlify/v1/functions/ssr/` y el payload en `.netlify/v1/`. Netlify lo
-> detecta solo, por eso `netlify toml` **no** declara la carpeta `functions`
+> detecta solo, por eso `netlify.toml` **no** declara la carpeta `functions`
 > (eso sobrescribiría la ubicación por defecto y rompería el despliegue).
 >
 > Para probar el build de producción de forma local usa `npx netlify dev`
