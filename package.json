@@ -3,15 +3,21 @@
   "type": "module",
   "version": "1.0.0",
   "private": true,
-  "description": "Tienda online Sant Hair+ Linea Capilar",
+  "description": "Tienda online Sant Hair+ Línea Capilar",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "npx netlify dev",
     "check": "astro check",
     "sync": "astro sync",
-    "lint:copy": "python scripts/limpiar-copy py"
+    "lint:copy": "python scripts/revisar-copy.py",
+    "lint:prosa": "python scripts/revisar-prosa.py",
+    "lint:css": "python scripts/revisar-css.py",
+    "lint:clases": "python scripts/revisar-clases.py",
+    "fix:copy": "python scripts/limpiar-copy.py --fix",
+    "fix:prosa": "python scripts/corregir-prosa.py",
+    "imagenes:social": "python scripts/generar-imagenes-social.py"
   },
   "dependencies": {
     "@astrojs/netlify": "^8.2.10",
@@ -21,6 +27,8 @@
     "astro": "^7.4.1"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@types/node": "^22.15.3",
     "typescript": "^5.9.3"
   }
 }
