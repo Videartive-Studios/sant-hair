@@ -1,19 +1,34 @@
 import type { APIRoute } from 'astro';
 import { subscribe } from '@/db/repo';
+import { clientKey, rateLimit, tooManyRequests } from '@/lib/rate-limit';
 
 export const prerender = false;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+const LIMITE_NEWSLETTER = 10;
+const VENTANA_MS = 60 * 60 * 1000;
+
 export const POST: APIRoute = async ({ request }) => {
+  const limit = rateLimit(
+    'newsletter',
+    clientKey(request),
+    LIMITE_NEWSLETTER,
+    VENTANA_MS,
+  );
+  if (!limit.ok) return tooManyRequests(limit.retryAfter);
+
   try {
     const body = await request.json();
-    const email = String(body?.email ?? '').trim().toLowerCase();
-    const nombre = body?.nombre ? String(body.nombre).trim(): undefined;
+    const email = String(body?.email ?? '')
+      .trim()
+      .toLowerCase()
+      .slice(0, 160);
+    const nombre = body?.nombre ? String(body.nombre).trim().slice(0, 120) : undefined;
 
     if (!email || !EMAIL_RE.test(email)) {
       return new Response(
-        JSON.stringify({ error: 'Escribe un correo electronico valido.' }),
+        JSON.stringify({ error: 'Escribe un correo electrónico válido.' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } },
       );
     }
@@ -27,7 +42,7 @@ export const POST: APIRoute = async ({ request }) => {
   } catch (err) {
     console.error('[api/newsletter]', err);
     return new Response(
-      JSON.stringify({ error: 'No se pudo completar la suscripcion.' }),
+      JSON.stringify({ error: 'No se pudo completar la suscripción.' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } },
     );
   }

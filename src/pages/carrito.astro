@@ -1,14 +1,5 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Icon from '@/components/Icon.astro';
-import { SITE } from '@/data/site';
-
-const formatMoney = (value: number) =>
-  new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: SITE.currency,
-    maximumFractionDigits: 0,
-  }).format(value);
 ---
 
 <BaseLayout
@@ -28,7 +19,7 @@ const formatMoney = (value: number) =>
     <div class="container">
       <div class="section-head">
         <div>
-          <p class="eyebrow">Tu seleccion</p>
+          <p class="eyebrow">Tu selección</p>
           <h1 class="display-2">Carrito de compras</h1>
         </div>
         <a class="btn btn--light btn--sm" href="/tienda">Seguir comprando</a>
@@ -53,10 +44,15 @@ const formatMoney = (value: number) =>
 </BaseLayout>
 
 <script>
-  import { getCart, cartTotals, formatMoney } from '@/scripts/cart';
-
-  const FREE_SHIPPING = 150_000;
-  const SHIPPING_COST = 12_000;
+  import {
+    getCart,
+    cartTotals,
+    formatMoney,
+    getPromoCode,
+    setPromoCode,
+    clearPromoCode,
+  } from '@/scripts/cart';
+  import { escapeHtml, safeImageSrc } from '@/lib/escape';
 
   const itemsEl = document.querySelector<HTMLElement>('[data-cart-page-items]');
   const summaryEl = document.querySelector<HTMLElement>('[data-cart-page-summary]');
@@ -69,9 +65,9 @@ const formatMoney = (value: number) =>
     if (items.length === 0) {
       itemsEl.innerHTML = `
         <div class="summary-card text-center" style="padding:3.5rem 1.5rem">
-          <h2 class="summary-card__title">Tu carrito esta vacio</h2>
+          <h2 class="summary-card__title">Tu carrito está vacío</h2>
           <p style="color:var(--muted)">
-            Todavia no has agregado productos. Te esperamos en la tienda.
+            Todavía no has agregado productos. Te esperamos en la tienda.
           </p>
           <a class="btn" href="/tienda" style="margin-top:1.5rem">Explorar la tienda</a>
         </div>`;
@@ -80,15 +76,15 @@ const formatMoney = (value: number) =>
     }
 
     itemsEl.innerHTML = items
-.map(
+      .map(
         (item) => `
-        <div class="cart-line" data-slug="${item.slug}" style="background:#fff;border:1px solid var(--line);padding:1.25rem;margin-bottom:.75rem">
-          <a class="cart-line__img" href="/tienda/${item.slug}">
-            <img src="${item.image}" alt="${item.name}" />
+        <div class="cart-line" data-slug="${escapeHtml(item.slug)}" style="background:#fff;border:1px solid var(--line);padding:1.25rem;margin-bottom:.75rem">
+          <a class="cart-line__img" href="/tienda/${encodeURIComponent(item.slug)}">
+            <img src="${safeImageSrc(item.image)}" alt="${escapeHtml(item.name)}" width="80" height="80" loading="lazy" />
           </a>
           <div>
-            <a class="cart-line__name" href="/tienda/${item.slug}">${item.name}</a>
-            <div class="cart-line__meta">${item.size} &middot; ${formatMoney(item.price)} c/u</div>
+            <a class="cart-line__name" href="/tienda/${encodeURIComponent(item.slug)}">${escapeHtml(item.name)}</a>
+            <div class="cart-line__meta">${escapeHtml(item.size)} &middot; ${formatMoney(item.price)} c/u</div>
             <div class="qty" style="margin-top:.6rem">
               <button type="button" data-cart-decrease aria-label="Restar una unidad">&minus;</button>
               <input type="number" value="${item.qty}" min="1" max="99" data-cart-qty aria-label="Cantidad" />
@@ -101,29 +97,63 @@ const formatMoney = (value: number) =>
           <div class="cart-line__price">${formatMoney(item.price * item.qty)}</div>
         </div>`,
       )
-.join('');
+      .join('');
 
-    const { subtotal, shipping, total, freeShippingRemaining, count } =
-      cartTotals(items);
-    const progress = Math.min(100, (subtotal / FREE_SHIPPING) * 100);
+    const {
+      subtotal,
+      discount,
+      promo,
+      shipping,
+      total,
+      freeShippingRemaining,
+      count,
+    } = cartTotals(items);
+    const progress = Math.min(100, (subtotal / 150_000) * 100);
 
     summaryEl.innerHTML = `
       <h2 class="summary-card__title">Resumen del pedido</h2>
       <div class="cart-progress"><div class="cart-progress__bar" style="width:${progress}%"></div></div>
       ${
         freeShippingRemaining > 0
-          ? `<p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">Te faltan <strong style="color:var(--gold-deep)">${formatMoney(freeShippingRemaining)}</strong> para el envio gratis</p>`
-: `<p style="font-size:.82rem;color:var(--ok);margin-bottom:1rem">Tienes envio gratis aplicado</p>`
+          ? `<p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">Te faltan <strong style="color:var(--gold-deep)">${formatMoney(freeShippingRemaining)}</strong> para el envío gratis</p>`
+          : `<p style="font-size:.82rem;color:var(--ok);margin-bottom:1rem">Tienes envío gratis aplicado</p>`
       }
       <div class="cart-summary"><span>Productos (${count})</span><span>${formatMoney(subtotal)}</span></div>
-      <div class="cart-summary"><span>Envio</span><span>${shipping === 0 ? 'Gratis': formatMoney(shipping)}</span></div>
+      ${
+        discount > 0
+          ? `<div class="cart-summary" style="color:var(--ok)"><span>Descuento ${escapeHtml(promo?.code ?? '')}</span><span>-${formatMoney(discount)}</span></div>`
+          : ''
+      }
+      <div class="cart-summary"><span>Envío</span><span>${shipping === 0 ? 'Gratis' : formatMoney(shipping)}</span></div>
       <div class="cart-summary cart-summary--total"><span>Total</span><span>${formatMoney(total)}</span></div>
+      <div style="display:flex;gap:.5rem;margin-top:1rem">
+        <input class="input" type="text" placeholder="Código de descuento" data-cart-promo
+          value="${escapeHtml(getPromoCode())}" style="text-transform:uppercase" autocomplete="off" spellcheck="false" />
+        <button class="btn btn--light" type="button" data-cart-promo-apply>Aplicar</button>
+      </div>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:.5rem" data-cart-promo-message>
+        ${discount > 0 ? `Código ${escapeHtml(promo?.code ?? '')} aplicado.` : 'El descuento se aplica sobre el subtotal.'}
+      </p>
       <a class="btn btn--gold btn--block" href="/checkout" style="margin-top:1.25rem">
         Finalizar compra
       </a>
       <p style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:.85rem">
-        Pago seguro &middot; Envio a todo el pais
+        Pago seguro &middot; Envío a todo el país
       </p>`;
+
+    // Boton de aplicar cupon: se crea cada vez que se redibuja el resumen.
+    const promoBtn = summaryEl.querySelector<HTMLButtonElement>('[data-cart-promo-apply]');
+    const promoInput = summaryEl.querySelector<HTMLInputElement>('[data-cart-promo]');
+    promoBtn?.addEventListener('click', () => {
+      const code = promoInput?.value ?? '';
+      if (!code.trim()) {
+        clearPromoCode();
+        render();
+        return;
+      }
+      setPromoCode(code);
+      render();
+    });
   }
 
   render();

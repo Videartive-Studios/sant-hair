@@ -3,9 +3,15 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@/components/Icon.astro';
 import { getOrder } from '@/db/repo';
 import { SITE } from '@/data/site';
+import { verifyOrderToken } from '@/lib/order-token';
 
-const orderId = Astro.url.searchParams.get('id');
-const order = orderId ? await getOrder(orderId): undefined;
+const orderId = Astro.url.searchParams.get('id') ?? '';
+const token = Astro.url.searchParams.get('token') ?? '';
+
+// El detalle del pedido solo se muestra con un token valido. Sin el, el
+// identificador por si solo no permite ver los datos de otro cliente.
+const orderIdVerificado = verifyOrderToken(orderId, token);
+const order = orderIdVerificado ? await getOrder(orderIdVerificado) : undefined;
 
 const formatMoney = (value: number) =>
   new Intl.NumberFormat('es-CO', {
@@ -18,7 +24,7 @@ const whatsappHref = order
   ? `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(
       `Hola! Quiero confirmar mi pedido ${order.id}. Total: ${formatMoney(order.total)}`,
     )}`
-: `https://wa.me/${SITE.whatsapp}`;
+  : `https://wa.me/${SITE.whatsapp}`;
 ---
 
 <BaseLayout
@@ -27,8 +33,8 @@ const whatsappHref = order
   noindex
 >
   <section class="section">
-    <div class="container container--narrow">
-      <div class="stack stack-4" style="text-align:center;align-items:center">
+    <div class="container container--narrow text-center">
+      <div class="stack stack-4" style="align-items:center">
         <div
           style="width:72px;height:72px;border-radius:50%;background:var(--gold);display:grid;place-items:center;color:var(--ink)"
         >
@@ -41,8 +47,8 @@ const whatsappHref = order
           <p class="lede" style="text-align:center">
             {
               order
-                ? 'Recibimos tu pedido y ya estamos preparandolo. Te escribiremos por WhatsApp y correo para confirmar el pago y coordinar la entrega.'
-: 'Recibimos tu pedido y ya estamos preparandolo. Te escribiremos para confirmar el pago y coordinar la entrega.'
+                ? 'Recibimos tu pedido y ya estamos preparándolo. Te escribiremos por WhatsApp y correo para confirmar el pago y coordinar la entrega.'
+                : 'Recibimos tu pedido y ya estamos preparándolo. Te escribiremos para confirmar el pago y coordinar la entrega.'
             }
           </p>
         </div>
@@ -54,7 +60,7 @@ const whatsappHref = order
                 style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem"
               >
                 <div>
-                  <p class="filter-group__title">Numero de pedido</p>
+                  <p class="filter-group__title">Número de pedido</p>
                   <p style="font-weight:500">{order.id}</p>
                 </div>
                 <div style="text-align:right">
@@ -78,9 +84,15 @@ const whatsappHref = order
               </ul>
 
               <div class="cart-summary"><span>Subtotal</span><span>{formatMoney(order.subtotal)}</span></div>
+              {order.descuento > 0 && (
+                <div class="cart-summary" style="color:var(--ok)">
+                  <span>Descuento {order.codigoDescuento}</span>
+                  <span>-{formatMoney(order.descuento)}</span>
+                </div>
+              )}
               <div class="cart-summary">
-                <span>Envio</span>
-                <span>{order.shipping === 0 ? 'Gratis': formatMoney(order.shipping)}</span>
+                <span>Envío</span>
+                <span>{order.shipping === 0 ? 'Gratis' : formatMoney(order.shipping)}</span>
               </div>
               <div class="cart-summary cart-summary--total">
                 <span>Total</span>
@@ -94,6 +106,16 @@ const whatsappHref = order
                 contactaremos al {order.customer.telefono}.
               </p>
             </div>
+          )
+        }
+
+        {
+          orderId && !order && (
+            <p class="notice notice--error" style="width:100%;text-align:left">
+              No pudimos verificar este pedido. Si acabas de comprar, revisa el
+              correo de confirmación; si el problema sigue, escríbenos por
+              WhatsApp y lo revisamos.
+            </p>
           )
         }
 

@@ -1,12 +1,11 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Icon from '@/components/Icon.astro';
-import { SITE } from '@/data/site';
+import { PROMO_CODES } from '@/lib/promo';
 ---
 
 <BaseLayout
   title="Finalizar compra"
-  description="Completa tus datos de envio y confirma tu pedido de Sant Hair+."
+  description="Completa tus datos de envío y confirma tu pedido de Sant Hair+."
   noindex
 >
   <div class="container">
@@ -23,14 +22,14 @@ import { SITE } from '@/data/site';
     <div class="container">
       <ol class="steps">
         <li>Carrito</li>
-        <li class="is-active">Datos de envio</li>
-        <li>Confirmacion</li>
+        <li class="is-active">Datos de envío</li>
+        <li>Confirmación</li>
       </ol>
 
       <div class="split" style="align-items:start;gap:clamp(2rem,4vw,3rem)">
         <form class="stack stack-3" data-checkout-form novalidate>
           <div class="stack stack-2">
-            <h2 class="display-3">Datos de envio</h2>
+            <h1 class="display-3">Finalizar compra</h1>
             <p style="color:var(--muted);font-size:.92rem">
               Todos los campos son obligatorios excepto las notas.
             </p>
@@ -39,29 +38,64 @@ import { SITE } from '@/data/site';
           <div class="form-grid">
             <div class="field">
               <label for="ck-nombre">Nombre completo</label>
-              <input class="input" id="ck-nombre" name="nombre" type="text" required />
+              <input
+                class="input"
+                id="ck-nombre"
+                name="nombre"
+                type="text"
+                required
+                autocomplete="name"
+                maxlength="120"
+              />
             </div>
             <div class="field">
-              <label for="ck-email">Correo electronico</label>
-              <input class="input" id="ck-email" name="email" type="email" required />
+              <label for="ck-email">Correo electrónico</label>
+              <input
+                class="input"
+                id="ck-email"
+                name="email"
+                type="email"
+                required
+                autocomplete="email"
+                maxlength="160"
+              />
             </div>
             <div class="field">
-              <label for="ck-telefono">Telefono / WhatsApp</label>
-              <input class="input" id="ck-telefono" name="telefono" type="tel" required />
+              <label for="ck-telefono">Teléfono / WhatsApp</label>
+              <input
+                class="input"
+                id="ck-telefono"
+                name="telefono"
+                type="tel"
+                required
+                autocomplete="tel"
+                maxlength="40"
+                inputmode="tel"
+              />
             </div>
             <div class="field">
               <label for="ck-ciudad">Ciudad</label>
-              <input class="input" id="ck-ciudad" name="ciudad" type="text" required />
+              <input
+                class="input"
+                id="ck-ciudad"
+                name="ciudad"
+                type="text"
+                required
+                autocomplete="address-level2"
+                maxlength="120"
+              />
             </div>
             <div class="field span-2">
-              <label for="ck-direccion">Direccion de entrega</label>
+              <label for="ck-direccion">Dirección de entrega</label>
               <input
                 class="input"
                 id="ck-direccion"
                 name="direccion"
                 type="text"
-                placeholder="Calle, numero, barrio, apartamento"
+                placeholder="Calle, número, barrio, apartamento"
                 required
+                autocomplete="street-address"
+                maxlength="200"
               />
             </div>
             <div class="field span-2">
@@ -71,13 +105,14 @@ import { SITE } from '@/data/site';
                 id="ck-notas"
                 name="notas"
                 style="min-height:100px"
+                maxlength="500"
                 placeholder="Horario de entrega, referencias, etc."
               ></textarea>
             </div>
           </div>
 
           <div class="stack stack-2">
-            <h2 class="display-3">Metodo de pago</h2>
+            <h2 class="display-3">Método de pago</h2>
             <div class="stack stack-2" style="gap:.6rem">
               <label
                 class="feature"
@@ -112,6 +147,30 @@ import { SITE } from '@/data/site';
             </div>
           </div>
 
+          <div class="stack stack-2">
+            <label for="ck-codigo" style="font-size:.9rem;font-weight:500">
+              ¿Tienes un código de descuento?
+            </label>
+            <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+              <input
+                class="input"
+                id="ck-codigo"
+                name="codigo"
+                type="text"
+                placeholder={Object.keys(PROMO_CODES)[0] ?? 'Código'}
+                autocomplete="off"
+                spellcheck="false"
+                style="max-width:220px;text-transform:uppercase"
+              />
+              <button class="btn btn--light" type="button" data-apply-promo>
+                Aplicar
+              </button>
+            </div>
+            <p style="font-size:.8rem;color:var(--muted)" data-promo-message>
+              El descuento se aplica sobre el subtotal antes del envío.
+            </p>
+          </div>
+
           <div data-checkout-result aria-live="polite"></div>
 
           <button class="btn btn--gold" type="submit" style="align-self:start;min-width:260px">
@@ -129,14 +188,24 @@ import { SITE } from '@/data/site';
 </BaseLayout>
 
 <script>
-  import { getCart, cartTotals, formatMoney } from '@/scripts/cart';
-
-  const FREE_SHIPPING = 150_000;
-  const SHIPPING_COST = 12_000;
+  import {
+    getCart,
+    cartTotals,
+    formatMoney,
+    getPromoCode,
+    setPromoCode,
+    clearPromoCode,
+  } from '@/scripts/cart';
+  import { escapeHtml } from '@/lib/escape';
 
   const form = document.querySelector<HTMLFormElement>('[data-checkout-form]');
   const summaryEl = document.querySelector<HTMLElement>('[data-checkout-summary]');
   const result = document.querySelector<HTMLElement>('[data-checkout-result]');
+  const promoInput = document.querySelector<HTMLInputElement>('#ck-codigo');
+  const promoMessage = document.querySelector<HTMLElement>('[data-promo-message]');
+  const applyPromoBtn = document.querySelector<HTMLButtonElement>('[data-apply-promo]');
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
   function renderSummary() {
     if (!summaryEl) return;
@@ -145,28 +214,33 @@ import { SITE } from '@/data/site';
     if (items.length === 0) {
       summaryEl.innerHTML = `
         <h2 class="summary-card__title">Tu pedido</h2>
-        <p style="color:var(--muted)">Tu carrito esta vacio.</p>
+        <p style="color:var(--muted);font-size:.9rem">Tu carrito está vacío.</p>
         <a class="btn btn--light btn--block" href="/tienda" style="margin-top:1rem">Ir a la tienda</a>`;
       return;
     }
 
-    const { subtotal, shipping, total, count } = cartTotals(items);
+    const { subtotal, discount, promo, shipping, total, count } = cartTotals(items);
 
     summaryEl.innerHTML = `
       <h2 class="summary-card__title">Tu pedido (${count})</h2>
       <div class="stack stack-2" style="gap:.85rem;margin-bottom:1.25rem">
         ${items
-.map(
+          .map(
             (item) => `
           <div style="display:flex;justify-content:space-between;gap:1rem;font-size:.9rem">
-            <span style="color:var(--text-2)">${item.qty} x ${item.name}</span>
+            <span style="color:var(--text-2)">${item.qty} x ${escapeHtml(item.name)}</span>
             <span>${formatMoney(item.price * item.qty)}</span>
           </div>`,
           )
-.join('')}
+          .join('')}
       </div>
       <div class="cart-summary"><span>Subtotal</span><span>${formatMoney(subtotal)}</span></div>
-      <div class="cart-summary"><span>Envio</span><span>${shipping === 0 ? 'Gratis': formatMoney(shipping)}</span></div>
+      ${
+        discount > 0
+          ? `<div class="cart-summary" style="color:var(--ok)"><span>Descuento ${escapeHtml(promo?.code ?? '')}</span><span>-${formatMoney(discount)}</span></div>`
+          : ''
+      }
+      <div class="cart-summary"><span>Envío</span><span>${shipping === 0 ? 'Gratis' : formatMoney(shipping)}</span></div>
       <div class="cart-summary cart-summary--total"><span>Total</span><span>${formatMoney(total)}</span></div>
       <p style="font-size:.78rem;color:var(--muted);margin-top:1rem">
         Confirmas el pedido y te contactamos para coordinar la entrega y el pago.
@@ -175,6 +249,36 @@ import { SITE } from '@/data/site';
 
   renderSummary();
   document.addEventListener('santhair:cart:updated', renderSummary);
+
+  // El codigo guardado se refleja en el campo.
+  if (promoInput) {
+    const saved = getPromoCode();
+    if (saved) promoInput.value = saved;
+  }
+
+  applyPromoBtn?.addEventListener('click', () => {
+    const code = promoInput?.value ?? '';
+    if (!code.trim()) {
+      clearPromoCode();
+      if (promoMessage) {
+        promoMessage.textContent = 'El descuento se aplica sobre el subtotal antes del envío.';
+        promoMessage.style.color = 'var(--muted)';
+      }
+      renderSummary();
+      return;
+    }
+
+    if (setPromoCode(code)) {
+      if (promoMessage) {
+        promoMessage.textContent = `Código ${code.trim().toUpperCase()} aplicado.`;
+        promoMessage.style.color = 'var(--ok)';
+      }
+    } else if (promoMessage) {
+      promoMessage.textContent = 'Ese código no es válido.';
+      promoMessage.style.color = 'var(--error, #b4342c)';
+    }
+    renderSummary();
+  });
 
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -186,7 +290,7 @@ import { SITE } from '@/data/site';
     if (items.length === 0) {
       if (result) {
         result.innerHTML =
-          '<p class="notice notice--error">Tu carrito esta vacio. Agrega productos antes de continuar.</p>';
+          '<p class="notice notice--error">Tu carrito está vacío. Agrega productos antes de continuar.</p>';
       }
       return;
     }
@@ -201,23 +305,33 @@ import { SITE } from '@/data/site';
       return;
     }
 
-    const button = form.querySelector('button');
+    const email = String(payload.email ?? '').trim();
+    if (!EMAIL_RE.test(email)) {
+      if (result) {
+        result.innerHTML =
+          '<p class="notice notice--error">Escribe un correo electrónico válido.</p>';
+      }
+      return;
+    }
+
+    const button = form.querySelector('button[type="submit"]');
     if (button) button.setAttribute('disabled', 'true');
 
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({...payload, items }),
+        body: JSON.stringify({ ...payload, items, codigo: getPromoCode() }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'No se pudo registrar el pedido');
 
       localStorage.removeItem('santhair:cart:v1');
-      window.location.href = `/gracias?id=${encodeURIComponent(data.orderId)}`;
+      clearPromoCode();
+      window.location.href = `/gracias?id=${encodeURIComponent(data.orderId)}&token=${encodeURIComponent(data.token ?? '')}`;
     } catch (error) {
       if (result) {
-        result.innerHTML = `<p class="notice notice--error">${(error as Error).message}</p>`;
+        result.innerHTML = `<p class="notice notice--error">${escapeHtml((error as Error).message)}</p>`;
       }
       if (button) button.removeAttribute('disabled');
     }

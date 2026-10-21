@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Icon from '@/components/Icon.astro';
 import { ADMIN_COOKIE, adminEnabled, verifyToken } from '@/lib/auth';
 import { dbInfo } from '@/db/repo';
 
@@ -9,27 +8,11 @@ export const prerender = false;
 const authenticated = verifyToken(Astro.cookies.get(ADMIN_COOKIE)?.value);
 const enabled = adminEnabled();
 const db = dbInfo();
-
-const formatMoney = (value: number) =>
-  new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    maximumFractionDigits: 0,
-  }).format(value);
-
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat('es-CO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value));
 ---
 
 <BaseLayout
-  title="Panel de administracion"
-  description="Gestion de pedidos, inventario y suscriptores de Sant Hair+."
+  title="Panel de administración"
+  description="Gestión de pedidos, inventario y suscriptores de Sant Hair+."
   noindex
 >
   <section class="section" style="padding-top:2rem">
@@ -40,7 +23,7 @@ const formatDate = (value: string) =>
             <h1 class="summary-card__title">Panel deshabilitado</h1>
             <p style="color:var(--muted)">
               Define la variable de entorno <code>ADMIN_PASSWORD</code> en Netlify para
-              habilitar el acceso al panel de administracion.
+              habilitar el acceso al panel de administración.
             </p>
           </div>
         ): !authenticated ? (
@@ -50,15 +33,15 @@ const formatDate = (value: string) =>
           >
             <div class="stack stack-3">
               <div class="text-center stack stack-2">
-                <h1 class="display-3">Panel de administracion</h1>
+                <h1 class="display-3">Panel de administración</h1>
                 <p style="color:var(--muted);font-size:.9rem">
-                  Introduce la contrasena para continuar.
+                  Introduce la contraseña para continuar.
                 </p>
               </div>
 
               <form class="stack stack-3" data-admin-login novalidate>
                 <div class="field">
-                  <label for="admin-password">Contrasena</label>
+                  <label for="admin-password">Contraseña</label>
                   <input
                     class="input"
                     id="admin-password"
@@ -78,13 +61,13 @@ const formatDate = (value: string) =>
             <div class="section-head">
               <div>
                 <p class="eyebrow">Sant Hair+ · Backend</p>
-                <h1 class="display-2">Panel de administracion</h1>
+                <h1 class="display-2">Panel de administración</h1>
                 <p style="color:var(--muted);font-size:.85rem">
                   Base de datos: {db.etiqueta}
                 </p>
               </div>
               <button class="btn btn--light btn--sm" type="button" data-admin-logout>
-                Cerrar sesion
+                Cerrar sesión
               </button>
             </div>
 
@@ -116,7 +99,7 @@ const formatDate = (value: string) =>
 
             <div data-admin-panel>
               <div class="summary-card text-center">
-                <p style="color:var(--muted)">Cargando informacion...</p>
+                <p style="color:var(--muted)">Cargando información...</p>
               </div>
             </div>
           </div>
@@ -151,6 +134,20 @@ const formatDate = (value: string) =>
           c
         ] as string,
     );
+
+  /** Aviso flotante para confirmar (o denegar) un cambio en el panel. */
+  const showToast = (message: string) => {
+    let toast = document.querySelector<HTMLElement>('[data-toast]');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.setAttribute('data-toast', '');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    requestAnimationFrame(() => toast?.classList.add('is-visible'));
+    window.setTimeout(() => toast?.classList.remove('is-visible'), 3200);
+  };
 
   // ------------------------------------------------------------------
   // Login
@@ -217,7 +214,7 @@ const formatDate = (value: string) =>
   function renderPedidos(orders: any[]) {
     if (!panelEl) return;
     if (orders.length === 0) {
-      panelEl.innerHTML = '<div class="summary-card"><p style="color:var(--muted)">Todavia no hay pedidos.</p></div>';
+      panelEl.innerHTML = '<div class="summary-card"><p style="color:var(--muted)">Todavía no hay pedidos.</p></div>';
       return;
     }
     panelEl.innerHTML = `
@@ -242,10 +239,10 @@ const formatDate = (value: string) =>
                 <td><strong>${money(order.total)}</strong></td>
                 <td><span class="badge badge--${esc(order.status)}">${esc(order.status)}</span></td>
                 <td>
-                  <select class="select" data-order-status="${esc(order.id)}" style="min-width:130px;padding:.5rem.6rem">
+                  <select class="select" data-order-status="${esc(order.id)}" style="min-width:130px;padding:.5rem .6rem">
                     ${STATUSES.map(
                       (status) =>
-                        `<option value="${status}" ${status === order.status ? 'selected': ''}>${status}</option>`,
+                        `<option value="${status}" ${status === order.status ? 'selected' : ''}>${status}</option>`,
                     ).join('')}
                   </select>
                 </td>
@@ -276,10 +273,10 @@ const formatDate = (value: string) =>
                 </td>
                 <td>${esc(product.category)}</td>
                 <td>
-                  <input class="input" type="number" value="${product.price}" data-product-price="${esc(product.slug)}" style="width:120px;padding:.45rem.6rem" />
+                  <input class="input" type="number" min="0" value="${product.price}" data-product-price="${esc(product.slug)}" style="width:120px;padding:.45rem .6rem" />
                 </td>
                 <td>
-                  <input class="input" type="number" value="${product.stock}" data-product-stock="${esc(product.slug)}" style="width:90px;padding:.45rem.6rem" />
+                  <input class="input" type="number" min="0" value="${product.stock}" data-product-stock="${esc(product.slug)}" style="width:90px;padding:.45rem .6rem" />
                 </td>
                 <td>
                   <input type="checkbox" data-product-published="${esc(product.slug)}" ${product.published ? 'checked': ''} />
@@ -309,7 +306,7 @@ const formatDate = (value: string) =>
                     <td>${esc(s.origen)}</td>
                   </tr>`,
                 )
-.join('') || '<tr><td colspan="3" style="color:var(--muted)">Sin suscriptores todavia.</td></tr>'
+.join('') || '<tr><td colspan="3" style="color:var(--muted)">Sin suscriptores todavía.</td></tr>'
             }
           </tbody>
         </table>
@@ -335,7 +332,7 @@ const formatDate = (value: string) =>
           </div>`,
             )
 .join('') ||
-            '<div class="summary-card"><p style="color:var(--muted)">Sin mensajes todavia.</p></div>'
+            '<div class="summary-card"><p style="color:var(--muted)">Sin mensajes todavía.</p></div>'
         }
       </div>`;
   }
@@ -347,7 +344,7 @@ const formatDate = (value: string) =>
     const res = await fetch(`/api/admin/data?recurso=${recurso}`);
     if (!res.ok) {
       panelEl.innerHTML =
-        '<div class="summary-card"><p class="notice notice--error">No se pudo cargar la informacion.</p></div>';
+        '<div class="summary-card"><p class="notice notice--error">No se pudo cargar la información.</p></div>';
       return;
     }
     const data = await res.json();
@@ -370,7 +367,7 @@ const formatDate = (value: string) =>
 
     const statusSelect = target.closest<HTMLSelectElement>('[data-order-status]');
     if (statusSelect) {
-      await fetch('/api/admin/data', {
+      const res = await fetch('/api/admin/data', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -379,12 +376,17 @@ const formatDate = (value: string) =>
           status: statusSelect.value,
         }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error ?? 'No se pudo actualizar el estado.');
+        await loadTab('pedidos');
+      }
       return;
     }
 
     const productInput = target.closest<HTMLInputElement>('[data-product-published]');
     if (productInput) {
-      await fetch('/api/admin/data', {
+      const res = await fetch('/api/admin/data', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -393,6 +395,11 @@ const formatDate = (value: string) =>
           published: productInput.checked,
         }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error ?? 'No se pudo actualizar el producto.');
+        await loadTab('productos');
+      }
     }
   });
 
@@ -419,7 +426,15 @@ const formatDate = (value: string) =>
       }),
     });
     button.removeAttribute('disabled');
-    button.textContent = res.ok ? 'Guardado': 'Error';
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      button.textContent = 'Error';
+      showToast(data.error ?? 'No se pudo guardar el producto.');
+      await loadTab('productos');
+      setTimeout(() => (button.textContent = 'Guardar'), 1800);
+      return;
+    }
+    button.textContent = 'Guardado';
     setTimeout(() => (button.textContent = 'Guardar'), 1800);
   });
 
