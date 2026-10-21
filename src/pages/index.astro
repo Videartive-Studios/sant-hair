@@ -12,7 +12,7 @@ const products = await getPublishedProducts();
 const newArrivals = [...products].reverse().slice(0, 4);
 
 const VALORES = [
-  'Formulas limpias',
+  'Fórmulas limpias',
   'Sin sulfatos',
   'Sin siliconas',
   'Cruelty free',
@@ -30,21 +30,21 @@ const formatMoney = (value: number) =>
 
 <BaseLayout
   title="Cuidado capilar de autor: Shampoo, Acondicionador y Mascarilla"
-  description="Sant Hair+ es la linea capilar de formulacion limpia: shampoo sin sulfatos, acondicionador y mascarilla de reparacion profunda. Envio gratis desde $150.000."
+  description="Sant Hair+ es la línea capilar de formulación limpia: shampoo sin sulfatos, acondicionador y mascarilla de reparación profunda. Envío gratis desde $150.000."
 >
   <!-- ================= HERO ================= -->
   <section class="hero">
     <div class="container hero__inner">
       <div>
-        <p class="eyebrow">Linea capilar</p>
+        <p class="eyebrow">Línea capilar</p>
         <h1 class="display-1 hero__title balance">
-          NUTRICION PURA.
+          NUTRICIÓN PURA.
           <em>BELLEZA REAL.</em>
         </h1>
         <span class="ornament ornament--left" aria-hidden="true"><i></i></span>
         <p class="lede">
           Shampoo, acondicionador y mascarilla formulados con activos puros para un
-          cabello que brilla, se peina facil y resiste el dia a dia. Sin sulfatos, sin
+          cabello que brilla, se peina fácil y resiste el día a día. Sin sulfatos, sin
           siliconas, cruelty free.
         </p>
         <div class="hero__actions">
@@ -57,7 +57,7 @@ const formatMoney = (value: number) =>
         <div class="hero__glow"></div>
         <img
           src="/img/hero-fraccos.webp"
-          alt="Envases de la linea capilar Sant Hair+"
+          alt="Envases de la línea capilar Sant Hair+"
           width="984"
           height="844"
           loading="eager"
@@ -87,13 +87,13 @@ const formatMoney = (value: number) =>
   <!-- ================= MARQUESINA DE VALORES ================= -->
   <Marquee items={VALORES} />
 
-  <!-- ================= CATEGORIAS ================= -->
+  <!-- ================= CATEGORÍAS ================= -->
   <section class="section section--tight">
     <div class="container">
       <div class="section-head section-head--center">
         <div>
           <p class="eyebrow">Encuentra lo que tu cabello necesita</p>
-          <h2 class="section-head__title">Compra por categoria</h2>
+          <h2 class="section-head__title">Compra por categoría</h2>
         </div>
       </div>
 
@@ -104,7 +104,7 @@ const formatMoney = (value: number) =>
               <img
                 class="category-card__img"
                 src={category.image}
-                alt={category.name}
+                alt={`${category.name} Sant Hair+`}
                 width="520"
                 height="520"
                 loading="lazy"
@@ -120,7 +120,7 @@ const formatMoney = (value: number) =>
     </div>
   </section>
 
-  <!-- ================= BANNER PROMOTIONAL ================= -->
+  <!-- ================= BANNER PROMOCIONAL ================= -->
   <section class="promo reveal">
     <div class="container promo__inner">
       <div>
@@ -130,25 +130,25 @@ const formatMoney = (value: number) =>
           <em>Bueno para tu plan.</em>
         </h2>
         <p class="lede">
-          Tres pasos, una sola linea. Limpieza, nutricion y reparacion profunda con
-          ingredientes que puedes leer y entender. Envio gratis en pedidos superiores a
+          Tres pasos, una sola línea. Limpieza, nutrición y reparación profunda con
+          ingredientes que puedes leer y entender. Envío gratis en pedidos superiores a
           {formatMoney(SITE.freeShippingThreshold)}.
         </p>
         <div class="hero__actions">
           <a class="btn btn--gold" href="/tienda">Explorar la rutina</a>
         </div>
         <ul class="promo__list">
-          <li><Icon name="recycle" size={17} /> Embalaje ecologico</li>
+          <li><Icon name="recycle" size={17} /> Embalaje ecológico</li>
           <li><Icon name="leaf" size={17} /> Activos de origen vegetal</li>
           <li><Icon name="award" size={17} /> Calidad profesional</li>
         </ul>
       </div>
       <div class="promo__media">
         <img
-          src="/img/hero-fraccos.webp"
-          alt="Linea Sant Hair+ completa"
-          width="984"
-          height="844"
+          src="/img/mockup-negro.webp"
+          alt="Línea Sant Hair+ completa sobre fondo negro"
+          width="992"
+          height="1056"
           loading="lazy"
         />
       </div>
@@ -160,7 +160,7 @@ const formatMoney = (value: number) =>
     <div class="container">
       <div class="section-head">
         <div>
-          <p class="eyebrow">Recien llegado</p>
+          <p class="eyebrow">Recién llegado</p>
           <h2 class="section-head__title">Novedades</h2>
         </div>
         <a class="link-underline" href="/tienda">Ver todo</a>
@@ -210,9 +210,9 @@ const formatMoney = (value: number) =>
     <div class="container">
       <div class="newsletter">
         <div>
-          <p class="eyebrow">Mantente al dia</p>
+          <p class="eyebrow">Mantente al día</p>
           <h2 class="display-3" style="margin:.5rem 0 1rem">
-            Suscribete a nuestro newsletter
+            Suscríbete a nuestro newsletter
           </h2>
           <p class="lede">
             Recibe ofertas exclusivas, consejos de cuidado capilar y lanzamientos. Sin
@@ -222,13 +222,16 @@ const formatMoney = (value: number) =>
 
         <div>
           <form class="newsletter__form" data-newsletter-form method="post" novalidate>
+            <label class="visually-hidden" for="nl-email">Correo electrónico</label>
             <input
               class="input"
+              id="nl-email"
               type="email"
               name="email"
-              placeholder="Tu correo electronico"
+              placeholder="Tu correo electrónico"
               required
-              aria-label="Correo electronico"
+              autocomplete="email"
+              maxlength="160"
             />
             <button class="btn btn--gold" type="submit">Suscribirme</button>
           </form>
@@ -241,6 +244,7 @@ const formatMoney = (value: number) =>
 
 <script>
   import { showToast } from '@/scripts/cart';
+  import { escapeHtml } from '@/lib/escape';
 
   const form = document.querySelector<HTMLFormElement>('[data-newsletter-form]');
   const result = document.querySelector<HTMLElement>('[data-newsletter-result]');
@@ -251,7 +255,7 @@ const formatMoney = (value: number) =>
     if (!email || !email.includes('@')) {
       if (result) {
         result.innerHTML =
-          '<p class="notice notice--error">Escribe un correo electronico valido.</p>';
+          '<p class="notice notice--error">Escribe un correo electrónico válido.</p>';
       }
       return;
     }
@@ -272,11 +276,11 @@ const formatMoney = (value: number) =>
         result.innerHTML =
           '<p class="notice notice--ok">Listo. Te suscribiste correctamente.</p>';
       }
-      showToast('Suscripcion confirmada. Gracias!');
+      showToast('Suscripción confirmada. ¡Gracias!');
       form.reset();
     } catch (error) {
       if (result) {
-        result.innerHTML = `<p class="notice notice--error">${(error as Error).message}</p>`;
+        result.innerHTML = `<p class="notice notice--error">${escapeHtml((error as Error).message)}</p>`;
       }
     } finally {
       if (button) button.removeAttribute('disabled');

@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import ProductCard from '@/components/ProductCard.astro';
 import Icon from '@/components/Icon.astro';
 import { getProductsByCategory, getCategories } from '@/db/repo';
+import { breadcrumbSchema, itemListSchema } from '@/lib/seo';
 
 const categoria = Astro.url.searchParams.get('categoria') ?? 'todos';
 const orden = Astro.url.searchParams.get('orden') ?? 'destacados';
@@ -18,10 +19,10 @@ const sorted = [...products].sort((a, b) => {
 });
 
 const activeCategory = categories.find((c) => c.slug === categoria);
-const title = activeCategory ? activeCategory.name: 'Tienda';
+const title = activeCategory ? activeCategory.name : 'Tienda';
 const description = activeCategory
   ? activeCategory.seoDescription
-: 'Todo el catalogo de Sant Hair+: shampoos, acondicionadores y mascarillas capilares de formulacion limpia.';
+  : 'Todo el catálogo de Sant Hair+: shampoos, acondicionadores y mascarillas capilares de formulación limpia.';
 
 const buildUrl = (params: Record<string, string | undefined>) => {
   const url = new URL('/tienda', Astro.url);
@@ -30,9 +31,28 @@ const buildUrl = (params: Record<string, string | undefined>) => {
   });
   return url.pathname + url.search;
 };
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  ...(activeCategory
+    ? [{ name: 'Tienda', href: '/tienda' }, { name: activeCategory.name, href: `/tienda?categoria=${activeCategory.slug}` }]
+    : [{ name: 'Tienda', href: '/tienda' }]),
+];
+
+// El canonical conserva el parametro de categoria: el sitemap anuncia
+// esas URLs y deben apuntar a si mismas, no a /tienda.
+const canonical = new URL(
+  activeCategory ? `/tienda?categoria=${activeCategory.slug}` : '/tienda',
+  Astro.site,
+).toString();
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout
+  title={activeCategory ? `${title} | Sant Hair+` : 'Tienda de cuidado capilar | Sant Hair+'}
+  description={description}
+  canonical={canonical}
+  schema={[itemListSchema(sorted), breadcrumbSchema(breadcrumbs)]}
+>
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
       <a href="/">Inicio</a>
@@ -45,7 +65,7 @@ const buildUrl = (params: Record<string, string | undefined>) => {
     <div class="container">
       <div class="section-head">
         <div>
-          <p class="eyebrow">Catalogo</p>
+          <p class="eyebrow">Catálogo</p>
           <h1 class="display-2">{title}</h1>
           {activeCategory && <p class="lede">{activeCategory.description}</p>}
         </div>
@@ -55,12 +75,12 @@ const buildUrl = (params: Record<string, string | undefined>) => {
       <div class="shop-layout">
         <aside class="filters" aria-label="Filtros">
           <div class="filter-group">
-            <p class="filter-group__title">Categoria</p>
+            <p class="filter-group__title">Categoría</p>
             <ul class="filter-list">
               <li>
                 <a
                   href={buildUrl({ categoria: undefined, orden })}
-                  class={categoria === 'todos' ? 'is-active': ''}
+                  class={categoria === 'todos' ? 'is-active' : ''}
                 >
                   Todos los productos
                   <span>·</span>
@@ -71,7 +91,7 @@ const buildUrl = (params: Record<string, string | undefined>) => {
                   <li>
                     <a
                       href={buildUrl({ categoria: category.slug, orden })}
-                      class={categoria === category.slug ? 'is-active': ''}
+                      class={categoria === category.slug ? 'is-active' : ''}
                     >
                       {category.name}
                       <Icon name="chevron-right" size={14} />
@@ -95,7 +115,7 @@ const buildUrl = (params: Record<string, string | undefined>) => {
                   <li>
                     <a
                       href={buildUrl({ categoria, orden: option.id })}
-                      class={orden === option.id ? 'is-active': ''}
+                      class={orden === option.id ? 'is-active' : ''}
                     >
                       {option.label}
                     </a>
@@ -109,7 +129,7 @@ const buildUrl = (params: Record<string, string | undefined>) => {
         <div>
           <div class="shop-toolbar">
             <p class="shop-toolbar__count">
-              {sorted.length} {sorted.length === 1 ? 'producto': 'productos'}
+              {sorted.length} {sorted.length === 1 ? 'producto' : 'productos'}
             </p>
             <a class="link-underline" href="/carrito">Ver carrito</a>
           </div>
@@ -123,12 +143,12 @@ const buildUrl = (params: Record<string, string | undefined>) => {
               </div>
             ): (
               <div class="summary-card text-center">
-                <h2 class="summary-card__title">No hay productos en esta categoria</h2>
+                <h2 class="summary-card__title">No hay productos en esta categoría</h2>
                 <p style="color:var(--muted)">
-                  Prueba con otra categoria o vuelve al catalogo completo.
+                  Prueba con otra categoría o vuelve al catálogo completo.
                 </p>
                 <a class="btn btn--light" href="/tienda" style="margin-top:1.25rem">
-                  Ver todo el catalogo
+                  Ver todo el catálogo
                 </a>
               </div>
             )
@@ -145,15 +165,15 @@ const buildUrl = (params: Record<string, string | undefined>) => {
         <li class="feature">
           <Icon name="truck" size={30} class="feature__icon" />
           <div>
-            <p class="feature__title">Envio gratis</p>
+            <p class="feature__title">Envío gratis</p>
             <p class="feature__text">En pedidos superiores a $150.000</p>
           </div>
         </li>
         <li class="feature">
           <Icon name="rotate" size={30} class="feature__icon" />
           <div>
-            <p class="feature__title">Devoluciones faciles</p>
-            <p class="feature__text">14 dias para cambiar tu pedido</p>
+            <p class="feature__title">Devoluciones fáciles</p>
+            <p class="feature__text">14 días para cambiar tu pedido</p>
           </div>
         </li>
         <li class="feature">
@@ -166,7 +186,7 @@ const buildUrl = (params: Record<string, string | undefined>) => {
         <li class="feature">
           <Icon name="whatsapp" size={30} class="feature__icon" />
           <div>
-            <p class="feature__title">Asesoria directa</p>
+            <p class="feature__title">Asesoría directa</p>
             <p class="feature__text">Escríbenos por WhatsApp</p>
           </div>
         </li>

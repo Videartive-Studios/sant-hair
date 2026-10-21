@@ -1,12 +1,14 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { LEGAL_DOCS } from '@/data/legal';
+import { breadcrumbSchema } from '@/lib/seo';
 
 const { slug } = Astro.params;
 const doc = LEGAL_DOCS.find((d) => d.slug === slug);
 
+// Un documento legal inexistente es un 404 real.
 if (!doc) {
-  return Astro.redirect('/');
+  return Astro.rewrite('/404');
 }
 
 const formatDate = (value: string) =>
@@ -15,9 +17,19 @@ const formatDate = (value: string) =>
     month: 'long',
     year: 'numeric',
   }).format(new Date(`${value}T12:00:00Z`));
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Legal', href: '/legal/privacidad' },
+  { name: doc.title, href: `/legal/${doc.slug}` },
+];
 ---
 
-<BaseLayout title={doc.title} description={doc.intro}>
+<BaseLayout
+  title={doc.title}
+  description={doc.intro}
+  schema={breadcrumbSchema(breadcrumbs)}
+>
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
       <a href="/">Inicio</a>
@@ -34,7 +46,7 @@ const formatDate = (value: string) =>
           <h1 class="display-2">{doc.title}</h1>
           <p class="lede">{doc.intro}</p>
           <p style="font-size:.8rem;color:var(--muted)">
-            Ultima actualizacion: {formatDate(doc.updated)}
+            Última actualización: {formatDate(doc.updated)}
           </p>
         </div>
 
@@ -54,7 +66,7 @@ const formatDate = (value: string) =>
         <div class="summary-card">
           <h2 class="summary-card__title">¿Alguna duda?</h2>
           <p style="color:var(--muted);font-size:.93rem">
-            Escribenos y te ayudamos. Respondemos en menos de 24 horas habiles.
+            Escríbenos y te ayudamos. Respondemos en menos de 24 horas hábiles.
           </p>
           <a class="btn btn--light" href="/contacto" style="margin-top:1.25rem">
             Ir a contacto

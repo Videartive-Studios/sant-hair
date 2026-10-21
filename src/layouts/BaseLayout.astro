@@ -4,7 +4,9 @@ import TopBar from '@/components/TopBar.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import CartDrawer from '@/components/CartDrawer.astro';
+import JsonLd from '@/components/JsonLd.astro';
 import { SITE } from '@/data/site';
+import { organizationSchema } from '@/lib/seo';
 
 interface Props {
   title?: string;
@@ -12,19 +14,28 @@ interface Props {
   image?: string;
   noindex?: boolean;
   canonical?: string;
+  ogType?: string;
+  /** Datos estructurados adicionales de la pagina. */
+  schema?: unknown;
 }
 
 const {
   title,
   description = SITE.description,
-  image = '/img/mockup-claro.webp',
+  image = '/img/og-santhair.png',
   noindex = false,
   canonical,
+  ogType = 'website',
+  schema,
 } = Astro.props;
 
+// El titulo se compone una sola vez: si la pagina ya menciona la marca
+// (por ejemplo "Shampoo Nutritivo Sant Hair+ 300 ml"), no se repite.
 const pageTitle = title
-  ? `${title} | ${SITE.brand}`
-: `${SITE.brandFull} | Cuidado capilar de autor`;
+  ? title.includes(SITE.brand)
+    ? title
+    : `${title} | ${SITE.brand}`
+  : `${SITE.brandFull} | Cuidado capilar de autor`;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
 const imageUrl = new URL(image, Astro.site).toString();
 
@@ -40,8 +51,8 @@ if (!noindex) {
 }
 ---
 
-<!doctype.html>
-<html lang="es">
+<!doctype html>
+<html lang={SITE.lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -50,18 +61,26 @@ if (!noindex) {
     <link rel="canonical" href={canonicalUrl} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={SITE.brandFull} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:alt" content={`${SITE.brandFull} — ${SITE.tagline}`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:locale" content={SITE.locale} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={`${SITE.brandFull} — ${SITE.tagline}`} />
 
     <link rel="icon" type="image/webp" href="/img/favicon.webp" />
-    <link rel="apple-touch-icon" href="/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <meta name="theme-color" content="#0b0b0a" />
+    <link rel="sitemap" href="/sitemap.xml" />
     <noscript>
       <style>
         .reveal {
@@ -76,6 +95,8 @@ if (!noindex) {
       // permanece visible.
       document.documentElement.classList.add('js');
     </script>
+    <JsonLd data={organizationSchema()} />
+    {schema && <JsonLd data={schema} />}
   </head>
 
   <body>

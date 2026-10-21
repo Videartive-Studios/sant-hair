@@ -4,17 +4,21 @@ import ProductCard from '@/components/ProductCard.astro';
 import Icon from '@/components/Icon.astro';
 import { getProduct, getPublishedProducts } from '@/db/repo';
 import { SITE } from '@/data/site';
+import { breadcrumbSchema, productSchema } from '@/lib/seo';
 
 const { slug } = Astro.params;
-const product = slug ? await getProduct(slug): undefined;
+const product = slug ? await getProduct(slug) : undefined;
 
+// Un producto que no existe es un 404 real, no una redireccion: el
+// buscador no debe indexar la pagina de error ni perder la URL original.
+// `Astro.rewrite` renderiza la pagina de error conservando la URL pedida.
 if (!product || product.published === false) {
-  return Astro.redirect('/404');
+  return Astro.rewrite('/404');
 }
 
 const related = (await getPublishedProducts())
-.filter((p) => p.slug !== product.slug)
-.slice(0, 3);
+  .filter((p) => p.slug !== product.slug)
+  .slice(0, 3);
 
 const formatMoney = (value: number) =>
   new Intl.NumberFormat('es-CO', {
@@ -25,15 +29,23 @@ const formatMoney = (value: number) =>
 
 const discount = product.compareAtPrice
   ? Math.round((1 - product.price / product.compareAtPrice) * 100)
-: 0;
+  : 0;
 
 const outOfStock = product.stock <= 0;
+
+const breadcrumbs = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Tienda', href: '/tienda' },
+  { name: product.name, href: `/tienda/${product.slug}` },
+];
 ---
 
 <BaseLayout
   title={product.seoTitle}
   description={product.seoDescription}
   image={product.image}
+  ogType="product"
+  schema={[productSchema(product), breadcrumbSchema(breadcrumbs)]}
 >
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
@@ -48,16 +60,17 @@ const outOfStock = product.stock <= 0;
   <section class="section" style="padding-top:1rem">
     <div class="container">
       <div class="pdp">
-        <!-- ============ GALERIA ============ -->
+        <!-- ============ GALERÍA ============ -->
         <div class="pdp__gallery">
           <div class="pdp__main">
             <img
               id="pdp-main-image"
               src={product.gallery[0]}
-              alt={product.name}
+              alt={`${product.name} Sant Hair+ ${product.size}`}
               width="800"
               height="800"
               loading="eager"
+              fetchpriority="high"
             />
           </div>
           {
@@ -65,7 +78,7 @@ const outOfStock = product.stock <= 0;
               <div class="pdp__thumbs">
                 {product.gallery.map((image, index) => (
                   <button
-                    class={`pdp__thumb ${index === 0 ? 'is-active': ''}`}
+                    class={`pdp__thumb ${index === 0 ? 'is-active' : ''}`}
                     type="button"
                     data-gallery-thumb={image}
                     aria-label={`Ver imagen ${index + 1} de ${product.name}`}
@@ -78,7 +91,7 @@ const outOfStock = product.stock <= 0;
           }
         </div>
 
-        <!-- ============ INFORMACION ============ -->
+        <!-- ============ INFORMACIÓN ============ -->
         <div class="stack stack-3">
           <div>
             <p class="eyebrow">{product.subtitle}</p>
@@ -98,9 +111,9 @@ const outOfStock = product.stock <= 0;
             {product.size} &middot;{' '}
             {outOfStock
               ? 'Sin unidades disponibles'
-: product.stock <= 10
-                ? `Ultimas ${product.stock} unidades`
-: 'En stock'}
+              : product.stock <= 10
+                ? `Últimas ${product.stock} unidades`
+                : 'En stock'}
           </p>
 
           <div class="cluster" style="gap:.85rem">
@@ -133,21 +146,21 @@ const outOfStock = product.stock <= 0;
               data-size={product.size}
               disabled={outOfStock}
             >
-              {outOfStock ? 'Agotado': 'Agregar al carrito'}
+              {outOfStock ? 'Agotado' : 'Agregar al carrito'}
             </button>
           </div>
 
           <p style="font-size:.82rem;color:var(--muted)">
             <Icon name="truck" size={16} style="display:inline;vertical-align:-3px" />
-            {' '}Envio gratis en pedidos superiores a {formatMoney(SITE.freeShippingThreshold)}.
-            Entrega en 2 a 5 dias habiles.
+            {' '}Envío gratis en pedidos superiores a {formatMoney(SITE.freeShippingThreshold)}.
+            Entrega en 2 a 5 días hábiles.
           </p>
 
-          <!-- ============ ACORDEON ============ -->
+          <!-- ============ ACORDEÓN ============ -->
           <div class="accordion" style="margin-top:.5rem">
             <details class="accordion__item" open>
               <summary class="accordion__summary">
-                Descripcion
+                Descripción
                 <span class="accordion__icon"></span>
               </summary>
               <div class="accordion__content">
@@ -181,7 +194,7 @@ const outOfStock = product.stock <= 0;
 
             <details class="accordion__item">
               <summary class="accordion__summary">
-                Como usarlo
+                Cómo usarlo
                 <span class="accordion__icon"></span>
               </summary>
               <div class="accordion__content">
@@ -201,7 +214,7 @@ const outOfStock = product.stock <= 0;
           <div class="section-head">
             <div>
               <p class="eyebrow">Combina tu rutina</p>
-              <h2 class="section-head__title">Tambien te puede interesar</h2>
+              <h2 class="section-head__title">También te puede interesar</h2>
             </div>
             <a class="link-underline" href="/tienda">Ver todo</a>
           </div>
@@ -239,8 +252,8 @@ const outOfStock = product.stock <= 0;
       if (!src || !main) return;
       main.src = src;
       document
-.querySelectorAll('[data-gallery-thumb]')
-.forEach((el) => el.classList.remove('is-active'));
+        .querySelectorAll('[data-gallery-thumb]')
+        .forEach((el) => el.classList.remove('is-active'));
       thumb.classList.add('is-active');
     });
   });
