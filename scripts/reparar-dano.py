@@ -150,6 +150,10 @@ PROPS = set(
     adminLoginResult adminLogout adminStats adminPanel header mobileMenu
     menuOpen menuClose toast pdpMainImage productPublished productPrice
     productStock slug name price image size qty addToCart
+    # Propiedades anadidas en la revision de seguridad y SEO
+    count blobs key token pid descuento descuentoPercent promoCode
+    codigoDescuento subtotal shipping remaining limit resetAt retryAfter
+    orderId data order items error ok success
     """.split()
 )
 

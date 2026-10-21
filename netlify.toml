@@ -1,8 +1,8 @@
 # ---------------------------------------------------------------
 # Netlify — Sant Hair+ Línea Capilar
 #
-# El adaptador @astrojs/netlify v8 genera la función SSR.en
-# .netlify/v1/functions/ssr/ y el payload de despliegue.en .netlify/v1/.
+# El adaptador @astrojs/netlify v8 genera la función SSR en
+# .netlify/v1/functions/ssr/ y el payload de despliegue en .netlify/v1/.
 # Netlify lo detecta automáticamente, por eso NO se declara la carpeta
 # "functions" aquí (eso sobrescribiría la ubicación por defecto).
 # ---------------------------------------------------------------
@@ -28,6 +28,11 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    # La cabecera Content-Security-Policy la emite Astro en cada respuesta,
+    # calculando el hash de los scripts y estilos en linea. Asi no hace
+    # falta 'unsafe-inline' y el sitio no depende de esta configuracion
+    # para protegerse.
 
 [[headers]]
   for = "/img/*"
@@ -43,3 +48,28 @@
   for = "/fonts/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# ---------------------------------------------------------------
+# Redirecciones
+# ---------------------------------------------------------------
+
+# Un solo dominio canonico: sin esto, www y la version sin www sirven
+# el mismo contenido y Google lo trata como contenido duplicado.
+[[redirects]]
+  from = "https://www.santhair.com/*"
+  to = "https://santhair.com/:splat"
+  status = 301
+  force = true
+
+# El sitio es siempre HTTPS.
+[[redirects]]
+  from = "http://santhair.com/*"
+  to = "https://santhair.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.santhair.com/*"
+  to = "https://santhair.com/:splat"
+  status = 301
+  force = true
