@@ -1,9 +1,9 @@
 /**
  * Capa de persistencia.
  *
- * En produccion usa Netlify Blobs (el almacenamiento nativo de Netlify, sin
- * cuentas externas). En desarrollo local cae automaticamente a un archivo JSON
- * en `.data/`, de modo que `npm run dev` funciona sin configuracion.
+ * En producción usa Netlify Blobs (el almacenamiento nativo de Netlify, sin
+ * cuentas externas). En desarrollo local cae automáticamente a un archivo JSON
+ * en `.data/`, de modo que `npm run dev` funciona sin configuración.
  */
 
 import { getStore } from '@netlify/blobs';
@@ -12,15 +12,45 @@ import { dirname, join, resolve } from 'node:path';
 
 const STORE_NAME = 'santhair';
 const LOCAL_DIR = resolve(process.cwd(), '.data');
-const LOCAL_FILE = join(LOCAL_DIR, 'kv json');
+const LOCAL_FILE = join(LOCAL_DIR, 'kv.json');
 
-/** Netlify inyecta estas variables automaticamente en el entorno de Functions. */
-const hasBlobs =
-  !!process.env.NETLIFY_BLOBS_SITE_ID && !!process.env.NETLIFY_BLOBS_TOKEN;
+/**
+ * Netlify inyecta el contexto de Blobs en `NETLIFY_BLOBS_CONTEXT` (o en
+ * `globalThis.netlifyBlobsContext`): un JSON en base64 con `siteID`, `token`
+ * y las URLs de la API. Las variables sueltas `NETLIFY_BLOBS_SITE_ID` /
+ * `NETLIFY_BLOBS_TOKEN` son el mecanismo antiguo y el SDK v11 ya no las
+ * lee, asi que no sirven para detectar el modo.
+ */
+type BlobsContext = {
+  siteID?: string;
+  token?: string;
+};
+
+function readContext(): BlobsContext | null {
+  const raw =
+    process.env.NETLIFY_BLOBS_CONTEXT ??
+    (globalThis as { netlifyBlobsContext?: string }).netlifyBlobsContext;
+  if (!raw) return null;
+
+  try {
+    const json = Buffer.from(raw, 'base64').toString('utf-8');
+    return (JSON.parse(json) as BlobsContext) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+const context = readContext();
+
+/** Hay Blobs disponible si el contexto trae credenciales, o si se pasan a mano. */
+const hasBlobs = Boolean(
+  (context?.siteID && context?.token) ||
+    (process.env.NETLIFY_BLOBS_SITE_ID && process.env.NETLIFY_BLOBS_TOKEN),
+);
 
 export const storageMode: 'netlify-blobs' | 'local' = hasBlobs
   ? 'netlify-blobs'
-: 'local';
+  : 'local';
 
 export type KVRecord = Record<string, unknown>;
 
@@ -39,13 +69,26 @@ async function writeLocal(data: KVRecord): Promise<void> {
 }
 
 function blobsStore() {
-  return getStore({ name: STORE_NAME });
+  // Cuando Netlify ya inyectó el contexto (siteID, token y las URLs de la
+  // API), se deja que el SDK lo lea por su cuenta: es la unica forma de que
+  // funcione el servidor local de Blobs en `astro dev`.
+  // Si el sitio se ejecuta fuera de Netlify, se pasan las credenciales a mano.
+  if (context?.siteID && context?.token) {
+    return getStore({ name: STORE_NAME });
+  }
+  return getStore({
+    name: STORE_NAME,
+    siteID: process.env.NETLIFY_BLOBS_SITE_ID as string,
+    token: process.env.NETLIFY_BLOBS_TOKEN as string,
+  });
 }
 
 export async function kvGet<T>(key: string): Promise<T | null> {
   if (hasBlobs) {
     try {
-      const { value } = await blobsStore().get(key, { type: 'text' });
+      // En v11 `get` devuelve el valor directamente (string con `type: 'text'`),
+      // no un objeto con la propiedad `value`.
+      const value = await blobsStore().get(key, { type: 'text' });
       if (value === null || value === undefined) return null;
       return JSON.parse(value) as T;
     } catch (err) {
@@ -60,7 +103,8 @@ export async function kvGet<T>(key: string): Promise<T | null> {
 export async function kvSet(key: string, value: unknown): Promise<void> {
   if (hasBlobs) {
     try {
-      await blobsStore().set(key, JSON.stringify(value), { type: 'text' });
+      // `set` no admite la opción `type`: el contenido se guarda como texto.
+      await blobsStore().set(key, JSON.stringify(value));
       return;
     } catch (err) {
       console.error(`[blobs] error escribiendo "${key}"`, err);
@@ -82,12 +126,19 @@ export async function kvDelete(key: string): Promise<void> {
   await writeLocal(data);
 }
 
-/** Lista las claves que empiezan por un prefijo dado. */
+/**
+ * Lista las claves que empiezan por un prefijo dado.
+ * Recorre todas las paginas: el SDK no pagina solo, asi que sin este bucle
+ * los pedidos por encima del limite de pagina desaparecerian del panel.
+ */
 export async function kvList(prefix: string): Promise<string[]> {
   if (hasBlobs) {
+    const keys: string[] = [];
     try {
-      const { blobs } = await blobsStore().list({ prefix });
-      return blobs.map((b) => b.key);
+      for await (const page of blobsStore().list({ prefix, paginate: true })) {
+        for (const blob of page.blobs) keys.push(blob.key);
+      }
+      return keys;
     } catch (err) {
       console.error(`[blobs] error listando "${prefix}"`, err);
       return [];
@@ -101,5 +152,5 @@ export async function kvList(prefix: string): Promise<string[]> {
 export async function kvListAll<T>(prefix: string): Promise<T[]> {
   const keys = await kvList(prefix);
   const values = await Promise.all(keys.map((k) => kvGet<T>(k)));
-  return values.filter((v): v is T => v !== null);
+  return values.filter((v): v is Awaited<T> => v !== null && v !== undefined);
 }

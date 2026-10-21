@@ -6,6 +6,7 @@
 
 import { CATEGORIES, PRODUCTS, type Category, type Product } from '@/data/catalog';
 import { kvGet, kvSet, kvListAll, storageMode } from './blobs';
+import { randomBytes } from 'node:crypto';
 
 const CATALOG_KEY = 'catalogo/productos';
 const CATEGORIES_KEY = 'catalogo/categorias';
@@ -40,6 +41,10 @@ export type Order = {
   };
   items: OrderItem[];
   subtotal: number;
+  /** Descuento aplicado por cupon (0 si no hay). */
+  descuento: number;
+  /** Codigo del cupon aplicado, si lo hubo. */
+  codigoDescuento?: string;
   shipping: number;
   total: number;
   currency: string;
@@ -84,12 +89,18 @@ export async function getProducts(): Promise<Product[]> {
     await kvSet(CATALOG_KEY, PRODUCTS);
     return PRODUCTS;
   }
-  // Mezcla defensiva: los valores guardados mandan, el seed aporta campos nuevos.
+  // La base de datos manda: los productos guardados mandan sobre la semilla.
+  // La semilla solo aporta los campos que todavia no esten guardados, para
+  // que un producto nuevo en el codigo no desaparezca al publicarlo.
   const bySlug = new Map(stored.map((p) => [p.slug, p]));
-  return PRODUCTS.map((seed) => {
+  const merged = PRODUCTS.map((seed) => {
     const saved = bySlug.get(seed.slug);
-    return saved ? {...seed,...saved }: seed;
+    bySlug.delete(seed.slug);
+    return saved ? { ...seed, ...saved } : seed;
   });
+  // Productos que solo existen en la base de datos (creados desde el panel).
+  const soloEnBd = [...bySlug.values()];
+  return [...merged, ...soloEnBd];
 }
 
 export async function getPublishedProducts(): Promise<Product[]> {
@@ -208,7 +219,9 @@ export async function getMessages(): Promise<Message[]> {
 
 export function newId(prefix: string): string {
   const stamp = Date.now().toString(36).toUpperCase();
-  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  // 6 bytes aleatorios en hexadecimal: 16^12 combinaciones, de modo que un
+  // identificador de pedido no sea adivinable por fuerza bruta.
+  const rand = randomBytes(6).toString('hex').toUpperCase();
   return `${prefix}-${stamp}-${rand}`;
 }
 
