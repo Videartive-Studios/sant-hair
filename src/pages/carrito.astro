@@ -1,0 +1,131 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { SITE } from '@/data/site';
+
+const formatMoney = (value: number) =>
+  new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: SITE.currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+---
+
+<BaseLayout
+  title="Tu carrito"
+  description="Revisa los productos de Sant Hair+ que elegiste antes de completar tu pedido."
+  noindex
+>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Migas de pan">
+      <a href="/">Inicio</a>
+      <span>/</span>
+      <span aria-current="page">Carrito</span>
+    </nav>
+  </div>
+
+  <section class="section" style="padding-top:1rem">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Tu seleccion</p>
+          <h1 class="display-2">Carrito de compras</h1>
+        </div>
+        <a class="btn btn--light btn--sm" href="/tienda">Seguir comprando</a>
+      </div>
+
+      <div class="split" style="align-items:start;gap:clamp(2rem,4vw,3rem)">
+        <div>
+          <div data-cart-page-items>
+            <div class="summary-card text-center" style="padding:3rem 1.5rem">
+              <p style="color:var(--muted)">Cargando tu carrito...</p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="summary-card" data-cart-page-summary>
+          <h2 class="summary-card__title">Resumen del pedido</h2>
+          <p style="color:var(--muted);font-size:.9rem">Agrega productos para ver el total.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { getCart, cartTotals, formatMoney } from '@/scripts/cart';
+
+  const FREE_SHIPPING = 150_000;
+  const SHIPPING_COST = 12_000;
+
+  const itemsEl = document.querySelector<HTMLElement>('[data-cart-page-items]');
+  const summaryEl = document.querySelector<HTMLElement>('[data-cart-page-summary]');
+
+  function render() {
+    if (!itemsEl || !summaryEl) return;
+
+    const items = getCart();
+
+    if (items.length === 0) {
+      itemsEl.innerHTML = `
+        <div class="summary-card text-center" style="padding:3.5rem 1.5rem">
+          <h2 class="summary-card__title">Tu carrito esta vacio</h2>
+          <p style="color:var(--muted)">
+            Todavia no has agregado productos. Te esperamos en la tienda.
+          </p>
+          <a class="btn" href="/tienda" style="margin-top:1.5rem">Explorar la tienda</a>
+        </div>`;
+      summaryEl.innerHTML = '';
+      return;
+    }
+
+    itemsEl.innerHTML = items
+.map(
+        (item) => `
+        <div class="cart-line" data-slug="${item.slug}" style="background:#fff;border:1px solid var(--line);padding:1.25rem;margin-bottom:.75rem">
+          <a class="cart-line__img" href="/tienda/${item.slug}">
+            <img src="${item.image}" alt="${item.name}" />
+          </a>
+          <div>
+            <a class="cart-line__name" href="/tienda/${item.slug}">${item.name}</a>
+            <div class="cart-line__meta">${item.size} &middot; ${formatMoney(item.price)} c/u</div>
+            <div class="qty" style="margin-top:.6rem">
+              <button type="button" data-cart-decrease aria-label="Restar una unidad">&minus;</button>
+              <input type="number" value="${item.qty}" min="1" max="99" data-cart-qty aria-label="Cantidad" />
+              <button type="button" data-cart-increase aria-label="Sumar una unidad">+</button>
+            </div>
+            <button type="button" class="cart-line__remove" data-cart-remove style="margin-top:.5rem">
+              Quitar del carrito
+            </button>
+          </div>
+          <div class="cart-line__price">${formatMoney(item.price * item.qty)}</div>
+        </div>`,
+      )
+.join('');
+
+    const { subtotal, shipping, total, freeShippingRemaining, count } =
+      cartTotals(items);
+    const progress = Math.min(100, (subtotal / FREE_SHIPPING) * 100);
+
+    summaryEl.innerHTML = `
+      <h2 class="summary-card__title">Resumen del pedido</h2>
+      <div class="cart-progress"><div class="cart-progress__bar" style="width:${progress}%"></div></div>
+      ${
+        freeShippingRemaining > 0
+          ? `<p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">Te faltan <strong style="color:var(--gold-deep)">${formatMoney(freeShippingRemaining)}</strong> para el envio gratis</p>`
+: `<p style="font-size:.82rem;color:var(--ok);margin-bottom:1rem">Tienes envio gratis aplicado</p>`
+      }
+      <div class="cart-summary"><span>Productos (${count})</span><span>${formatMoney(subtotal)}</span></div>
+      <div class="cart-summary"><span>Envio</span><span>${shipping === 0 ? 'Gratis': formatMoney(shipping)}</span></div>
+      <div class="cart-summary cart-summary--total"><span>Total</span><span>${formatMoney(total)}</span></div>
+      <a class="btn btn--gold btn--block" href="/checkout" style="margin-top:1.25rem">
+        Finalizar compra
+      </a>
+      <p style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:.85rem">
+        Pago seguro &middot; Envio a todo el pais
+      </p>`;
+  }
+
+  render();
+  document.addEventListener('santhair:cart:updated', render);
+</script>

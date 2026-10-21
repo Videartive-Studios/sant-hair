@@ -1,0 +1,225 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { SITE } from '@/data/site';
+---
+
+<BaseLayout
+  title="Finalizar compra"
+  description="Completa tus datos de envio y confirma tu pedido de Sant Hair+."
+  noindex
+>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Migas de pan">
+      <a href="/">Inicio</a>
+      <span>/</span>
+      <a href="/carrito">Carrito</a>
+      <span>/</span>
+      <span aria-current="page">Checkout</span>
+    </nav>
+  </div>
+
+  <section class="section" style="padding-top:1rem">
+    <div class="container">
+      <ol class="steps">
+        <li>Carrito</li>
+        <li class="is-active">Datos de envio</li>
+        <li>Confirmacion</li>
+      </ol>
+
+      <div class="split" style="align-items:start;gap:clamp(2rem,4vw,3rem)">
+        <form class="stack stack-3" data-checkout-form novalidate>
+          <div class="stack stack-2">
+            <h2 class="display-3">Datos de envio</h2>
+            <p style="color:var(--muted);font-size:.92rem">
+              Todos los campos son obligatorios excepto las notas.
+            </p>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="ck-nombre">Nombre completo</label>
+              <input class="input" id="ck-nombre" name="nombre" type="text" required />
+            </div>
+            <div class="field">
+              <label for="ck-email">Correo electronico</label>
+              <input class="input" id="ck-email" name="email" type="email" required />
+            </div>
+            <div class="field">
+              <label for="ck-telefono">Telefono / WhatsApp</label>
+              <input class="input" id="ck-telefono" name="telefono" type="tel" required />
+            </div>
+            <div class="field">
+              <label for="ck-ciudad">Ciudad</label>
+              <input class="input" id="ck-ciudad" name="ciudad" type="text" required />
+            </div>
+            <div class="field span-2">
+              <label for="ck-direccion">Direccion de entrega</label>
+              <input
+                class="input"
+                id="ck-direccion"
+                name="direccion"
+                type="text"
+                placeholder="Calle, numero, barrio, apartamento"
+                required
+              />
+            </div>
+            <div class="field span-2">
+              <label for="ck-notas">Notas para el pedido (opcional)</label>
+              <textarea
+                class="textarea"
+                id="ck-notas"
+                name="notas"
+                style="min-height:100px"
+                placeholder="Horario de entrega, referencias, etc."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="stack stack-2">
+            <h2 class="display-3">Metodo de pago</h2>
+            <div class="stack stack-2" style="gap:.6rem">
+              <label
+                class="feature"
+                style="gap:.75rem;background:#fff;border:1px solid var(--line);padding:1rem 1.15rem;cursor:pointer"
+              >
+                <input type="radio" name="metodoPago" value="contraentrega" checked />
+                <span>
+                  <span class="feature__title">Contra entrega</span>
+                  <span class="feature__text">Pagas al recibir tu pedido en efectivo</span>
+                </span>
+              </label>
+              <label
+                class="feature"
+                style="gap:.75rem;background:#fff;border:1px solid var(--line);padding:1rem 1.15rem;cursor:pointer"
+              >
+                <input type="radio" name="metodoPago" value="transferencia" />
+                <span>
+                  <span class="feature__title">Transferencia bancaria</span>
+                  <span class="feature__text">Te enviamos los datos para pagar</span>
+                </span>
+              </label>
+              <label
+                class="feature"
+                style="gap:.75rem;background:#fff;border:1px solid var(--line);padding:1rem 1.15rem;cursor:pointer"
+              >
+                <input type="radio" name="metodoPago" value="whatsapp" />
+                <span>
+                  <span class="feature__title">Coordinar por WhatsApp</span>
+                  <span class="feature__text">Confirmamos el pedido y el pago contigo</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div data-checkout-result aria-live="polite"></div>
+
+          <button class="btn btn--gold" type="submit" style="align-self:start;min-width:260px">
+            Confirmar pedido
+          </button>
+        </form>
+
+        <aside class="summary-card" data-checkout-summary>
+          <h2 class="summary-card__title">Tu pedido</h2>
+          <p style="color:var(--muted);font-size:.9rem">Cargando productos...</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { getCart, cartTotals, formatMoney } from '@/scripts/cart';
+
+  const FREE_SHIPPING = 150_000;
+  const SHIPPING_COST = 12_000;
+
+  const form = document.querySelector<HTMLFormElement>('[data-checkout-form]');
+  const summaryEl = document.querySelector<HTMLElement>('[data-checkout-summary]');
+  const result = document.querySelector<HTMLElement>('[data-checkout-result]');
+
+  function renderSummary() {
+    if (!summaryEl) return;
+    const items = getCart();
+
+    if (items.length === 0) {
+      summaryEl.innerHTML = `
+        <h2 class="summary-card__title">Tu pedido</h2>
+        <p style="color:var(--muted)">Tu carrito esta vacio.</p>
+        <a class="btn btn--light btn--block" href="/tienda" style="margin-top:1rem">Ir a la tienda</a>`;
+      return;
+    }
+
+    const { subtotal, shipping, total, count } = cartTotals(items);
+
+    summaryEl.innerHTML = `
+      <h2 class="summary-card__title">Tu pedido (${count})</h2>
+      <div class="stack stack-2" style="gap:.85rem;margin-bottom:1.25rem">
+        ${items
+.map(
+            (item) => `
+          <div style="display:flex;justify-content:space-between;gap:1rem;font-size:.9rem">
+            <span style="color:var(--text-2)">${item.qty} x ${item.name}</span>
+            <span>${formatMoney(item.price * item.qty)}</span>
+          </div>`,
+          )
+.join('')}
+      </div>
+      <div class="cart-summary"><span>Subtotal</span><span>${formatMoney(subtotal)}</span></div>
+      <div class="cart-summary"><span>Envio</span><span>${shipping === 0 ? 'Gratis': formatMoney(shipping)}</span></div>
+      <div class="cart-summary cart-summary--total"><span>Total</span><span>${formatMoney(total)}</span></div>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:1rem">
+        Confirmas el pedido y te contactamos para coordinar la entrega y el pago.
+      </p>`;
+  }
+
+  renderSummary();
+  document.addEventListener('santhair:cart:updated', renderSummary);
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+    const payload = Object.fromEntries(formData.entries());
+    const items = getCart();
+
+    if (items.length === 0) {
+      if (result) {
+        result.innerHTML =
+          '<p class="notice notice--error">Tu carrito esta vacio. Agrega productos antes de continuar.</p>';
+      }
+      return;
+    }
+
+    const required = ['nombre', 'email', 'telefono', 'ciudad', 'direccion'];
+    const missing = required.filter((field) => !String(payload[field] ?? '').trim());
+    if (missing.length > 0) {
+      if (result) {
+        result.innerHTML =
+          '<p class="notice notice--error">Completa todos los campos obligatorios.</p>';
+      }
+      return;
+    }
+
+    const button = form.querySelector('button');
+    if (button) button.setAttribute('disabled', 'true');
+
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({...payload, items }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'No se pudo registrar el pedido');
+
+      localStorage.removeItem('santhair:cart:v1');
+      window.location.href = `/gracias?id=${encodeURIComponent(data.orderId)}`;
+    } catch (error) {
+      if (result) {
+        result.innerHTML = `<p class="notice notice--error">${(error as Error).message}</p>`;
+      }
+      if (button) button.removeAttribute('disabled');
+    }
+  });
+</script>

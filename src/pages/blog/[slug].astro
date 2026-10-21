@@ -1,0 +1,121 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { BLOG_POSTS } from '@/data/content';
+
+const { slug } = Astro.params;
+const post = BLOG_POSTS.find((p) => p.slug === slug);
+
+if (!post) {
+  return Astro.redirect('/blog');
+}
+
+const others = BLOG_POSTS.filter((p) => p.slug !== post.slug).slice(0, 2);
+
+const formatDate = (value: string) =>
+  new Intl.DateTimeFormat('es-CO', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(`${value}T12:00:00Z`));
+---
+
+<BaseLayout
+  title={post.title}
+  description={post.excerpt}
+  image={post.cover}
+>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Migas de pan">
+      <a href="/">Inicio</a>
+      <span>/</span>
+      <a href="/blog">Blog</a>
+      <span>/</span>
+      <span aria-current="page">{post.title}</span>
+    </nav>
+  </div>
+
+  <article class="section" style="padding-top:1rem">
+    <div class="container container--narrow">
+      <header class="stack stack-2" style="margin-bottom:2.5rem">
+        <div class="post-card__meta">
+          <span>{post.category}</span>
+          <span>{formatDate(post.date)}</span>
+          <span>{post.readTime} de lectura</span>
+        </div>
+        <h1 class="display-2 balance">{post.title}</h1>
+        <p class="lede">{post.excerpt}</p>
+        <p style="font-size:.82rem;color:var(--muted)">
+          Por {post.author}
+        </p>
+      </header>
+
+      <div class="ratio-4-3 ratio-4-3--contain" style="margin-bottom:2.5rem">
+        <img
+          src={post.cover}
+          alt={post.title}
+          width="1024"
+          height="768"
+          loading="eager"
+        />
+      </div>
+
+      <div class="prose">
+        {post.content.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+
+      <div
+        class="summary-card"
+        style="margin-top:3rem;display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap"
+      >
+        <div style="flex:1;min-width:240px">
+          <h2 class="summary-card__title" style="margin-bottom:.4rem">
+            Lleva la rutina a casa
+          </h2>
+          <p style="color:var(--muted);font-size:.92rem">
+            Descubre los tres productos de la linea Sant Hair+.
+          </p>
+        </div>
+        <a class="btn" href="/tienda">Ir a la tienda</a>
+      </div>
+    </div>
+  </article>
+
+  {
+    others.length > 0 && (
+      <section class="section section--cream">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Sigue leyendo</p>
+              <h2 class="section-head__title">Otros articulos</h2>
+            </div>
+            <a class="link-underline" href="/blog">Ver todo</a>
+          </div>
+          <div class="post-grid">
+            {others.map((item) => (
+              <article class="post-card">
+                <a class="post-card__media" href={`/blog/${item.slug}`}>
+                  <img
+                    src={item.cover}
+                    alt={item.title}
+                    width="600"
+                    height="375"
+                    loading="lazy"
+                  />
+                </a>
+                <div class="post-card__meta">
+                  <span>{item.category}</span>
+                  <span>{formatDate(item.date)}</span>
+                </div>
+                <h3 class="post-card__title">
+                  <a href={`/blog/${item.slug}`}>{item.title}</a>
+                </h3>
+                <p style="color:var(--text-2);font-size:.95rem">{item.excerpt}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

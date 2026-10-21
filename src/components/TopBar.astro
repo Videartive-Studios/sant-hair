@@ -1,0 +1,27 @@
+---
+import Icon from './Icon.astro';
+import { SITE } from '@/data/site';
+---
+
+<div class="topbar">
+  <div class="container">
+    <p>
+      {SITE.announcement.text} &middot; Usa el codigo <strong>{SITE.announcement.code}</strong> y
+      obtén un 10% de descuento
+    </p>
+    <div class="topbar__socials">
+      <a href={SITE.social.instagram} target="_blank" rel="noopener" aria-label="Instagram">
+        <Icon name="instagram" size={15} />
+      </a>
+      <a href={SITE.social.facebook} target="_blank" rel="noopener" aria-label="Facebook">
+        <Icon name="facebook" size={15} />
+      </a>
+      <a href={SITE.social.tiktok} target="_blank" rel="noopener" aria-label="TikTok">
+        <Icon name="tiktok" size={15} />
+      </a>
+      <a href={SITE.social.youtube} target="_blank" rel="noopener" aria-label="YouTube">
+        <Icon name="youtube" size={15} />
+      </a>
+    </div>
+  </div>
+</div>

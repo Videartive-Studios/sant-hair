@@ -1,0 +1,45 @@
+# ---------------------------------------------------------------
+# Netlify — Sant Hair+ Línea Capilar
+#
+# El adaptador @astrojs/netlify v8 genera la función SSR.en
+# .netlify/v1/functions/ssr/ y el payload de despliegue.en .netlify/v1/.
+# Netlify lo detecta automáticamente, por eso NO se declara la carpeta
+# "functions" aquí (eso sobrescribiría la ubicación por defecto).
+# ---------------------------------------------------------------
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+  NPM_FLAGS = "--no-audit --no-fund"
+
+[build.processing]
+  skip_processing = false
+
+# ---------------------------------------------------------------
+# Cabeceras de seguridad y cache de los archivos estaticos
+# ---------------------------------------------------------------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+[[headers]]
+  for = "/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

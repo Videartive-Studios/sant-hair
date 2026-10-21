@@ -1,0 +1,26 @@
+{
+  "name": "santhair-web",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tienda online Sant Hair+ Linea Capilar",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "sync": "astro sync",
+    "lint:copy": "python scripts/limpiar-copy py"
+  },
+  "dependencies": {
+    "@astrojs/netlify": "^8.2.10",
+    "@fontsource-variable/cormorant-garamond": "^5.3.0",
+    "@fontsource-variable/jost": "^5.3.0",
+    "@netlify/blobs": "^11.1.5",
+    "astro": "^7.4.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

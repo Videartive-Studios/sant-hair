@@ -1,0 +1,285 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import ProductCard from '@/components/ProductCard.astro';
+import Marquee from '@/components/Marquee.astro';
+import { SITE, FEATURES } from '@/data/site';
+import { CATEGORIES } from '@/data/catalog';
+import { TESTIMONIALS } from '@/data/content';
+import { getPublishedProducts } from '@/db/repo';
+
+const products = await getPublishedProducts();
+const newArrivals = [...products].reverse().slice(0, 4);
+
+const VALORES = [
+  'Formulas limpias',
+  'Sin sulfatos',
+  'Sin siliconas',
+  'Cruelty free',
+  'De origen vegetal',
+  'Resultados reales',
+];
+
+const formatMoney = (value: number) =>
+  new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: SITE.currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+---
+
+<BaseLayout
+  title="Cuidado capilar de autor: Shampoo, Acondicionador y Mascarilla"
+  description="Sant Hair+ es la linea capilar de formulacion limpia: shampoo sin sulfatos, acondicionador y mascarilla de reparacion profunda. Envio gratis desde $150.000."
+>
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div>
+        <p class="eyebrow">Linea capilar</p>
+        <h1 class="display-1 hero__title balance">
+          NUTRICION PURA.
+          <em>BELLEZA REAL.</em>
+        </h1>
+        <span class="ornament ornament--left" aria-hidden="true"><i></i></span>
+        <p class="lede">
+          Shampoo, acondicionador y mascarilla formulados con activos puros para un
+          cabello que brilla, se peina facil y resiste el dia a dia. Sin sulfatos, sin
+          siliconas, cruelty free.
+        </p>
+        <div class="hero__actions">
+          <a class="btn" href="/tienda">Comprar ahora</a>
+          <a class="btn btn--light" href="/tienda">Ver la tienda</a>
+        </div>
+      </div>
+
+      <div class="hero__media">
+        <div class="hero__glow"></div>
+        <img
+          src="/img/hero-fraccos.webp"
+          alt="Envases de la linea capilar Sant Hair+"
+          width="984"
+          height="844"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FRANJA DE CONFIANZA ================= -->
+  <section class="container" aria-label="Nuestros compromisos">
+    <ul class="feature-bar">
+      {
+        FEATURES.map((feature) => (
+          <li class="feature">
+            <Icon name={feature.icon} size={32} class="feature__icon" />
+            <div>
+              <p class="feature__title">{feature.title}</p>
+              <p class="feature__text">{feature.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- ================= MARQUESINA DE VALORES ================= -->
+  <Marquee items={VALORES} />
+
+  <!-- ================= CATEGORIAS ================= -->
+  <section class="section section--tight">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <div>
+          <p class="eyebrow">Encuentra lo que tu cabello necesita</p>
+          <h2 class="section-head__title">Compra por categoria</h2>
+        </div>
+      </div>
+
+      <div class="category-grid reveal">
+        {
+          CATEGORIES.map((category) => (
+            <a class="category-card" href={`/tienda?categoria=${category.slug}`}>
+              <img
+                class="category-card__img"
+                src={category.image}
+                alt={category.name}
+                width="520"
+                height="520"
+                loading="lazy"
+              />
+              <div class="category-card__body">
+                <h3 class="category-card__title">{category.name}</h3>
+                <p class="category-card__desc">{category.description}</p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BANNER PROMOTIONAL ================= -->
+  <section class="promo reveal">
+    <div class="container promo__inner">
+      <div>
+        <p class="eyebrow">Ritual Sant Hair+</p>
+        <h2 class="promo__title">
+          Bueno para tu cabello.
+          <em>Bueno para tu plan.</em>
+        </h2>
+        <p class="lede">
+          Tres pasos, una sola linea. Limpieza, nutricion y reparacion profunda con
+          ingredientes que puedes leer y entender. Envio gratis en pedidos superiores a
+          {formatMoney(SITE.freeShippingThreshold)}.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--gold" href="/tienda">Explorar la rutina</a>
+        </div>
+        <ul class="promo__list">
+          <li><Icon name="recycle" size={17} /> Embalaje ecologico</li>
+          <li><Icon name="leaf" size={17} /> Activos de origen vegetal</li>
+          <li><Icon name="award" size={17} /> Calidad profesional</li>
+        </ul>
+      </div>
+      <div class="promo__media">
+        <img
+          src="/img/hero-fraccos.webp"
+          alt="Linea Sant Hair+ completa"
+          width="984"
+          height="844"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NOVEDADES ================= -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Recien llegado</p>
+          <h2 class="section-head__title">Novedades</h2>
+        </div>
+        <a class="link-underline" href="/tienda">Ver todo</a>
+      </div>
+
+      <div class="product-grid reveal">
+        {newArrivals.map((product) => <ProductCard product={product} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIOS ================= -->
+  <section class="section section--cream">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <div>
+          <p class="eyebrow">Lo que dicen</p>
+          <h2 class="section-head__title">Resultados que se sienten</h2>
+        </div>
+      </div>
+
+      <div class="testimonial-grid reveal">
+        {
+          TESTIMONIALS.map((testimonial) => (
+            <figure class="testimonial">
+              <div class="stars" aria-label={`${testimonial.rating} de 5 estrellas`}>
+                {Array.from({ length: testimonial.rating }).map(() => (
+                  <Icon name="star" size={15} fill />
+                ))}
+              </div>
+              <blockquote class="testimonial__text">
+                &laquo;{testimonial.text}&raquo;
+              </blockquote>
+              <figcaption class="testimonial__author">
+                <strong>{testimonial.name}</strong>
+                {testimonial.city} &middot; {testimonial.product}
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NEWSLETTER ================= -->
+  <section class="section">
+    <div class="container">
+      <div class="newsletter">
+        <div>
+          <p class="eyebrow">Mantente al dia</p>
+          <h2 class="display-3" style="margin:.5rem 0 1rem">
+            Suscribete a nuestro newsletter
+          </h2>
+          <p class="lede">
+            Recibe ofertas exclusivas, consejos de cuidado capilar y lanzamientos. Sin
+            spam, solo lo que vale la pena.
+          </p>
+        </div>
+
+        <div>
+          <form class="newsletter__form" data-newsletter-form method="post" novalidate>
+            <input
+              class="input"
+              type="email"
+              name="email"
+              placeholder="Tu correo electronico"
+              required
+              aria-label="Correo electronico"
+            />
+            <button class="btn btn--gold" type="submit">Suscribirme</button>
+          </form>
+          <div data-newsletter-result style="margin-top:.85rem" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { showToast } from '@/scripts/cart';
+
+  const form = document.querySelector<HTMLFormElement>('[data-newsletter-form]');
+  const result = document.querySelector<HTMLElement>('[data-newsletter-result]');
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const email = new FormData(form).get('email')?.toString().trim() ?? '';
+    if (!email || !email.includes('@')) {
+      if (result) {
+        result.innerHTML =
+          '<p class="notice notice--error">Escribe un correo electronico valido.</p>';
+      }
+      return;
+    }
+
+    const button = form.querySelector('button');
+    if (button) button.setAttribute('disabled', 'true');
+
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'No se pudo completar');
+
+      if (result) {
+        result.innerHTML =
+          '<p class="notice notice--ok">Listo. Te suscribiste correctamente.</p>';
+      }
+      showToast('Suscripcion confirmada. Gracias!');
+      form.reset();
+    } catch (error) {
+      if (result) {
+        result.innerHTML = `<p class="notice notice--error">${(error as Error).message}</p>`;
+      }
+    } finally {
+      if (button) button.removeAttribute('disabled');
+    }
+  });
+</script>

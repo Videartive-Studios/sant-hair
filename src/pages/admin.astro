@@ -1,0 +1,430 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { ADMIN_COOKIE, adminEnabled, verifyToken } from '@/lib/auth';
+import { dbInfo } from '@/db/repo';
+
+export const prerender = false;
+
+const authenticated = verifyToken(Astro.cookies.get(ADMIN_COOKIE)?.value);
+const enabled = adminEnabled();
+const db = dbInfo();
+
+const formatMoney = (value: number) =>
+  new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0,
+  }).format(value);
+
+const formatDate = (value: string) =>
+  new Intl.DateTimeFormat('es-CO', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(value));
+---
+
+<BaseLayout
+  title="Panel de administracion"
+  description="Gestion de pedidos, inventario y suscriptores de Sant Hair+."
+  noindex
+>
+  <section class="section" style="padding-top:2rem">
+    <div class="container">
+      {
+        !enabled ? (
+          <div class="summary-card text-center" style="max-width:560px;margin-inline:auto">
+            <h1 class="summary-card__title">Panel deshabilitado</h1>
+            <p style="color:var(--muted)">
+              Define la variable de entorno <code>ADMIN_PASSWORD</code> en Netlify para
+              habilitar el acceso al panel de administracion.
+            </p>
+          </div>
+        ): !authenticated ? (
+          <div
+            class="summary-card"
+            style="max-width:420px;margin-inline:auto;padding:2.5rem"
+          >
+            <div class="stack stack-3">
+              <div class="text-center stack stack-2">
+                <h1 class="display-3">Panel de administracion</h1>
+                <p style="color:var(--muted);font-size:.9rem">
+                  Introduce la contrasena para continuar.
+                </p>
+              </div>
+
+              <form class="stack stack-3" data-admin-login novalidate>
+                <div class="field">
+                  <label for="admin-password">Contrasena</label>
+                  <input
+                    class="input"
+                    id="admin-password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                  />
+                </div>
+                <div data-admin-login-result aria-live="polite"></div>
+                <button class="btn btn--gold btn--block" type="submit">Entrar</button>
+              </form>
+            </div>
+          </div>
+        ): (
+          <div class="stack stack-4">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Sant Hair+ · Backend</p>
+                <h1 class="display-2">Panel de administracion</h1>
+                <p style="color:var(--muted);font-size:.85rem">
+                  Base de datos: {db.etiqueta}
+                </p>
+              </div>
+              <button class="btn btn--light btn--sm" type="button" data-admin-logout>
+                Cerrar sesion
+              </button>
+            </div>
+
+            <div class="grid-3" data-admin-stats>
+              {
+                Array.from({ length: 4 }).map(() => (
+                  <div class="summary-card">
+                    <p class="filter-group__title">Cargando</p>
+                    <p class="display-3">—</p>
+                  </div>
+                ))
+              }
+            </div>
+
+            <div class="cluster" style="gap:.5rem">
+              <button class="btn btn--sm" type="button" data-admin-tab="pedidos">
+                Pedidos
+              </button>
+              <button class="btn btn--sm btn--light" type="button" data-admin-tab="productos">
+                Productos
+              </button>
+              <button class="btn btn--sm btn--light" type="button" data-admin-tab="suscriptores">
+                Suscriptores
+              </button>
+              <button class="btn btn--sm btn--light" type="button" data-admin-tab="mensajes">
+                Mensajes
+              </button>
+            </div>
+
+            <div data-admin-panel>
+              <div class="summary-card text-center">
+                <p style="color:var(--muted)">Cargando informacion...</p>
+              </div>
+            </div>
+          </div>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const money = (value: number) =>
+    new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      maximumFractionDigits: 0,
+    }).format(value);
+
+  const date = (value: string) =>
+    new Intl.DateTimeFormat('es-CO', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(value));
+
+  const esc = (value: unknown) =>
+    String(value ?? '').replace(
+      /[&<>"']/g,
+      (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[
+          c
+        ] as string,
+    );
+
+  // ------------------------------------------------------------------
+  // Login
+  // ------------------------------------------------------------------
+  const loginForm = document.querySelector<HTMLFormElement>('[data-admin-login]');
+  const loginResult = document.querySelector<HTMLElement>('[data-admin-login-result]');
+
+  loginForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const password = new FormData(loginForm).get('password')?.toString() ?? '';
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'No se pudo entrar');
+      window.location.reload();
+    } catch (error) {
+      if (loginResult) {
+        loginResult.innerHTML = `<p class="notice notice--error">${esc((error as Error).message)}</p>`;
+      }
+    }
+  });
+
+  document.querySelector('[data-admin-logout]')?.addEventListener('click', async () => {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    window.location.reload();
+  });
+
+  // ------------------------------------------------------------------
+  // Panel
+  // ------------------------------------------------------------------
+  const statsEl = document.querySelector<HTMLElement>('[data-admin-stats]');
+  const panelEl = document.querySelector<HTMLElement>('[data-admin-panel]');
+
+  const STATUSES = ['pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'];
+
+  async function loadStats() {
+    const res = await fetch('/api/admin/data');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!statsEl) return;
+    statsEl.innerHTML = `
+      <div class="summary-card">
+        <p class="filter-group__title">Pedidos</p>
+        <p class="display-3">${data.pedidos}</p>
+      </div>
+      <div class="summary-card">
+        <p class="filter-group__title">Ingresos</p>
+        <p class="display-3">${money(data.ingresos)}</p>
+      </div>
+      <div class="summary-card">
+        <p class="filter-group__title">Suscriptores</p>
+        <p class="display-3">${data.suscriptores}</p>
+      </div>
+      <div class="summary-card">
+        <p class="filter-group__title">Unidades en stock</p>
+        <p class="display-3">${data.stockTotal}</p>
+      </div>`;
+  }
+
+  function renderPedidos(orders: any[]) {
+    if (!panelEl) return;
+    if (orders.length === 0) {
+      panelEl.innerHTML = '<div class="summary-card"><p style="color:var(--muted)">Todavia no hay pedidos.</p></div>';
+      return;
+    }
+    panelEl.innerHTML = `
+      <div class="summary-card" style="overflow-x:auto">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Pedido</th><th>Fecha</th><th>Cliente</th><th>Contacto</th>
+              <th>Items</th><th>Total</th><th>Estado</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orders
+.map(
+                (order) => `
+              <tr>
+                <td><strong>${esc(order.id)}</strong><br><span style="color:var(--muted);font-size:.78rem">${esc(order.metodoPago)}</span></td>
+                <td>${esc(date(order.createdAt))}</td>
+                <td>${esc(order.customer.nombre)}<br><span style="color:var(--muted);font-size:.78rem">${esc(order.customer.ciudad)}</span></td>
+                <td>${esc(order.customer.email)}<br><span style="color:var(--muted);font-size:.78rem">${esc(order.customer.telefono)}</span></td>
+                <td>${order.items.map((i: any) => `${i.qty} x ${esc(i.name)}`).join('<br>')}</td>
+                <td><strong>${money(order.total)}</strong></td>
+                <td><span class="badge badge--${esc(order.status)}">${esc(order.status)}</span></td>
+                <td>
+                  <select class="select" data-order-status="${esc(order.id)}" style="min-width:130px;padding:.5rem.6rem">
+                    ${STATUSES.map(
+                      (status) =>
+                        `<option value="${status}" ${status === order.status ? 'selected': ''}>${status}</option>`,
+                    ).join('')}
+                  </select>
+                </td>
+              </tr>`,
+              )
+.join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  function renderProductos(products: any[]) {
+    if (!panelEl) return;
+    panelEl.innerHTML = `
+      <div class="summary-card" style="overflow-x:auto">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Producto</th><th>Categoria</th><th>Precio</th><th>Stock</th><th>Publicado</th><th></th></tr>
+          </thead>
+          <tbody>
+            ${products
+.map(
+                (product) => `
+              <tr>
+                <td>
+                  <strong>${esc(product.name)}</strong><br>
+                  <span style="color:var(--muted);font-size:.78rem">${esc(product.size)} · ${esc(product.slug)}</span>
+                </td>
+                <td>${esc(product.category)}</td>
+                <td>
+                  <input class="input" type="number" value="${product.price}" data-product-price="${esc(product.slug)}" style="width:120px;padding:.45rem.6rem" />
+                </td>
+                <td>
+                  <input class="input" type="number" value="${product.stock}" data-product-stock="${esc(product.slug)}" style="width:90px;padding:.45rem.6rem" />
+                </td>
+                <td>
+                  <input type="checkbox" data-product-published="${esc(product.slug)}" ${product.published ? 'checked': ''} />
+                </td>
+                <td><button class="btn btn--sm" type="button" data-save-product="${esc(product.slug)}">Guardar</button></td>
+              </tr>`,
+              )
+.join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  function renderSuscriptores(subscribers: any[]) {
+    if (!panelEl) return;
+    panelEl.innerHTML = `
+      <div class="summary-card" style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>Correo</th><th>Fecha</th><th>Origen</th></tr></thead>
+          <tbody>
+            ${
+              subscribers
+.map(
+                  (s) => `<tr>
+                    <td>${esc(s.email)}</td>
+                    <td>${esc(date(s.createdAt))}</td>
+                    <td>${esc(s.origen)}</td>
+                  </tr>`,
+                )
+.join('') || '<tr><td colspan="3" style="color:var(--muted)">Sin suscriptores todavia.</td></tr>'
+            }
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  function renderMensajes(messages: any[]) {
+    if (!panelEl) return;
+    panelEl.innerHTML = `
+      <div class="stack stack-2">
+        ${
+          messages
+.map(
+              (m) => `
+          <div class="summary-card">
+            <div class="section-head" style="margin-bottom:.75rem">
+              <div>
+                <p class="filter-group__title">${esc(m.asunto)} · ${esc(date(m.createdAt))}</p>
+                <p style="font-weight:500">${esc(m.nombre)} — ${esc(m.email)}${m.telefono ? ' · ' + esc(m.telefono): ''}</p>
+              </div>
+            </div>
+            <p style="color:var(--text-2);font-size:.93rem;white-space:pre-wrap">${esc(m.mensaje)}</p>
+          </div>`,
+            )
+.join('') ||
+            '<div class="summary-card"><p style="color:var(--muted)">Sin mensajes todavia.</p></div>'
+        }
+      </div>`;
+  }
+
+  async function loadTab(recurso: string) {
+    if (!panelEl) return;
+    panelEl.innerHTML =
+      '<div class="summary-card text-center"><p style="color:var(--muted)">Cargando...</p></div>';
+    const res = await fetch(`/api/admin/data?recurso=${recurso}`);
+    if (!res.ok) {
+      panelEl.innerHTML =
+        '<div class="summary-card"><p class="notice notice--error">No se pudo cargar la informacion.</p></div>';
+      return;
+    }
+    const data = await res.json();
+    if (recurso === 'pedidos') renderPedidos(data);
+    else if (recurso === 'productos') renderProductos(data);
+    else if (recurso === 'suscriptores') renderSuscriptores(data);
+    else renderMensajes(data);
+  }
+
+  document.querySelectorAll('[data-admin-tab]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const recurso = button.getAttribute('data-admin-tab');
+      if (recurso) loadTab(recurso);
+    });
+  });
+
+  // Cambios en linea
+  document.addEventListener('change', async (event) => {
+    const target = event.target as HTMLElement;
+
+    const statusSelect = target.closest<HTMLSelectElement>('[data-order-status]');
+    if (statusSelect) {
+      await fetch('/api/admin/data', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accion: 'estado-pedido',
+          id: statusSelect.dataset.orderStatus,
+          status: statusSelect.value,
+        }),
+      });
+      return;
+    }
+
+    const productInput = target.closest<HTMLInputElement>('[data-product-published]');
+    if (productInput) {
+      await fetch('/api/admin/data', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accion: 'actualizar-producto',
+          slug: productInput.dataset.productPublished,
+          published: productInput.checked,
+        }),
+      });
+    }
+  });
+
+  document.addEventListener('click', async (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLElement>('[data-save-product]');
+    if (!button) return;
+    const slug = button.dataset.saveProduct!;
+    const price = document.querySelector<HTMLInputElement>(
+      `[data-product-price="${slug}"]`,
+    )?.value;
+    const stock = document.querySelector<HTMLInputElement>(
+      `[data-product-stock="${slug}"]`,
+    )?.value;
+
+    button.setAttribute('disabled', 'true');
+    const res = await fetch('/api/admin/data', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accion: 'actualizar-producto',
+        slug,
+        price: Number(price),
+        stock: Number(stock),
+      }),
+    });
+    button.removeAttribute('disabled');
+    button.textContent = res.ok ? 'Guardado': 'Error';
+    setTimeout(() => (button.textContent = 'Guardar'), 1800);
+  });
+
+  if (statsEl) {
+    loadStats();
+    loadTab('pedidos');
+  }
+</script>

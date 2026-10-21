@@ -1,0 +1,20 @@
+---
+/**
+ * Marquesina de valores: banda oscura con la promesa de la marca.
+ * El texto se duplica en el markup para que la animacion sea continua.
+ */
+interface Props {
+  items: string[];
+}
+
+const { items } = Astro.props;
+
+const grupo = items.map((item) => `<span class="marquee__item">${item}</span>`).join('');
+---
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    <div class="marquee__group" set:html={grupo}></div>
+    <div class="marquee__group" set:html={grupo}></div>
+  </div>
+</div>

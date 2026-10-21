@@ -1,0 +1,109 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { getOrder } from '@/db/repo';
+import { SITE } from '@/data/site';
+
+const orderId = Astro.url.searchParams.get('id');
+const order = orderId ? await getOrder(orderId): undefined;
+
+const formatMoney = (value: number) =>
+  new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: SITE.currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+
+const whatsappHref = order
+  ? `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(
+      `Hola! Quiero confirmar mi pedido ${order.id}. Total: ${formatMoney(order.total)}`,
+    )}`
+: `https://wa.me/${SITE.whatsapp}`;
+---
+
+<BaseLayout
+  title="Pedido confirmado"
+  description="Tu pedido de Sant Hair+ fue registrado. Pronto nos pondremos en contacto para coordinar la entrega."
+  noindex
+>
+  <section class="section">
+    <div class="container container--narrow">
+      <div class="stack stack-4" style="text-align:center;align-items:center">
+        <div
+          style="width:72px;height:72px;border-radius:50%;background:var(--gold);display:grid;place-items:center;color:var(--ink)"
+        >
+          <Icon name="check" size={34} />
+        </div>
+
+        <div class="stack stack-2">
+          <p class="eyebrow">Pedido registrado</p>
+          <h1 class="display-2">Gracias por tu compra</h1>
+          <p class="lede" style="text-align:center">
+            {
+              order
+                ? 'Recibimos tu pedido y ya estamos preparandolo. Te escribiremos por WhatsApp y correo para confirmar el pago y coordinar la entrega.'
+: 'Recibimos tu pedido y ya estamos preparandolo. Te escribiremos para confirmar el pago y coordinar la entrega.'
+            }
+          </p>
+        </div>
+
+        {
+          order && (
+            <div class="summary-card" style="width:100%;text-align:left">
+              <div
+                style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem"
+              >
+                <div>
+                  <p class="filter-group__title">Numero de pedido</p>
+                  <p style="font-weight:500">{order.id}</p>
+                </div>
+                <div style="text-align:right">
+                  <p class="filter-group__title">Total</p>
+                  <p style="font-weight:500">{formatMoney(order.total)}</p>
+                </div>
+              </div>
+
+              <ul class="stack stack-2" style="gap:.75rem;margin-bottom:1.25rem">
+                {order.items.map((item) => (
+                  <li
+                    style="display:flex;justify-content:space-between;gap:1rem;font-size:.92rem"
+                  >
+                    <span style="color:var(--text-2)">
+                      {item.qty} x {item.name}{' '}
+                      <span style="color:var(--muted)">({item.size})</span>
+                    </span>
+                    <span>{formatMoney(item.price * item.qty)}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div class="cart-summary"><span>Subtotal</span><span>{formatMoney(order.subtotal)}</span></div>
+              <div class="cart-summary">
+                <span>Envio</span>
+                <span>{order.shipping === 0 ? 'Gratis': formatMoney(order.shipping)}</span>
+              </div>
+              <div class="cart-summary cart-summary--total">
+                <span>Total</span>
+                <span>{formatMoney(order.total)}</span>
+              </div>
+
+              <p
+                style="font-size:.85rem;color:var(--muted);margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--line)"
+              >
+                Enviaremos los detalles a <strong>{order.customer.email}</strong> y te
+                contactaremos al {order.customer.telefono}.
+              </p>
+            </div>
+          )
+        }
+
+        <div class="cluster" style="justify-content:center">
+          <a class="btn btn--gold" href={whatsappHref} target="_blank" rel="noopener">
+            <Icon name="whatsapp" size={17} /> Coordinar por WhatsApp
+          </a>
+          <a class="btn btn--light" href="/tienda">Seguir comprando</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

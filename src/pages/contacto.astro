@@ -1,0 +1,215 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { FAQS } from '@/data/content';
+import { SITE } from '@/data/site';
+---
+
+<BaseLayout
+  title="Contacto"
+  description="Escribenos a Sant Hair+. Resolvemos tus dudas sobre productos, pedidos, envios y la rutina es la ideal para tu cabello. Atencion por WhatsApp y correo."
+>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Migas de pan">
+      <a href="/">Inicio</a>
+      <span>/</span>
+      <span aria-current="page">Contacto</span>
+    </nav>
+  </div>
+
+  <section class="section" style="padding-top:1rem">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <div>
+          <p class="eyebrow">Estamos para ayudarte</p>
+          <h1 class="display-2">Contacto</h1>
+          <p class="lede" style="text-align:center">
+            Respondemos en menos de 24 horas habiles. Si prefieres, escribenos por
+            WhatsApp: es la forma mas rapida.
+          </p>
+        </div>
+      </div>
+
+      <div class="split" style="align-items:start;gap:clamp(2rem,5vw,4rem)">
+        <!-- ============ FORMULARIO ============ -->
+        <div class="stack stack-3">
+          <form class="stack stack-3" data-contact-form novalidate>
+            <div class="form-grid">
+              <div class="field">
+                <label for="nombre">Nombre</label>
+                <input class="input" id="nombre" name="nombre" type="text" required />
+              </div>
+              <div class="field">
+                <label for="email">Correo electronico</label>
+                <input class="input" id="email" name="email" type="email" required />
+              </div>
+              <div class="field">
+                <label for="telefono">Telefono / WhatsApp</label>
+                <input class="input" id="telefono" name="telefono" type="tel" />
+              </div>
+              <div class="field">
+                <label for="asunto">Asunto</label>
+                <select class="select" id="asunto" name="asunto">
+                  <option value="Consulta general">Consulta general</option>
+                  <option value="Estado de mi pedido">Estado de mi pedido</option>
+                  <option value="Asesoria de rutina">Asesoria de rutina</option>
+                  <option value="Cambios y devoluciones">Cambios y devoluciones</option>
+                  <option value="Distribucion y mayorista">Distribucion y mayorista</option>
+                </select>
+              </div>
+              <div class="field span-2">
+                <label for="mensaje">Mensaje</label>
+                <textarea
+                  class="textarea"
+                  id="mensaje"
+                  name="mensaje"
+                  placeholder="Cuentanos como podemos ayudarte"
+                  required></textarea>
+              </div>
+            </div>
+
+            <div data-contact-result aria-live="polite"></div>
+
+            <button class="btn btn--gold" type="submit" style="align-self:start">
+              Enviar mensaje
+            </button>
+          </form>
+        </div>
+
+        <!-- ============ DATOS ============ -->
+        <aside class="stack stack-3">
+          <div class="summary-card">
+            <h2 class="summary-card__title">Escribenos</h2>
+            <ul class="stack stack-3" style="gap:1.25rem">
+              <li class="feature" style="gap:.85rem">
+                <Icon name="whatsapp" size={26} class="feature__icon" />
+                <div>
+                  <p class="feature__title">WhatsApp</p>
+                  <a href={`https://wa.me/${SITE.whatsapp}`} class="link-underline" target="_blank" rel="noopener">
+                    {SITE.phoneDisplay}
+                  </a>
+                </div>
+              </li>
+              <li class="feature" style="gap:.85rem">
+                <Icon name="mail" size={26} class="feature__icon" />
+                <div>
+                  <p class="feature__title">Correo electronico</p>
+                  <a href={`mailto:${SITE.email}`} class="link-underline">
+                    {SITE.email}
+                  </a>
+                </div>
+              </li>
+              <li class="feature" style="gap:.85rem">
+                <Icon name="truck" size={26} class="feature__icon" />
+                <div>
+                  <p class="feature__title">Envios</p>
+                  <p style="font-size:.9rem;color:var(--muted)">
+                    Envios a todo Colombia y America Latina. Gratis desde{' '}
+                    {new Intl.NumberFormat('es-CO', {
+                      style: 'currency',
+                      currency: SITE.currency,
+                      maximumFractionDigits: 0,
+                    }).format(SITE.freeShippingThreshold)}
+.
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="summary-card" style="background:var(--ink);color:var(--cream);border:none">
+            <h2 class="summary-card__title" style="color:var(--gold-soft)">
+              Asesoria de rutina
+            </h2>
+            <p style="color:rgba(246,242,234,.72);font-size:.93rem">
+              No sabes que producto es el tuyo? Cuentanos como es tu cabello y te
+              recomendamos la rutina. Respondemos personally.
+            </p>
+            <a
+              class="btn btn--gold"
+              href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent('Hola! Necesito ayuda para elegir mi rutina de cuidado capilar.')}`}
+              target="_blank"
+              rel="noopener"
+              style="margin-top:1.25rem"
+            >
+              Escribir por WhatsApp
+            </a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="section section--cream" id="faq">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <div>
+          <p class="eyebrow">Resolvemos tus dudas</p>
+          <h2 class="section-head__title">Preguntas frecuentes</h2>
+        </div>
+      </div>
+
+      <div class="faq-list">
+        <div class="accordion">
+          {
+            FAQS.map((faq, index) => (
+              <details class="accordion__item" open={index === 0}>
+                <summary class="accordion__summary">
+                  {faq.question}
+                  <span class="accordion__icon" />
+                </summary>
+                <div class="accordion__content">
+                  <p>{faq.answer}</p>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const result = document.querySelector<HTMLElement>('[data-contact-result]');
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    if (!data.nombre || !data.email || !data.mensaje) {
+      if (result) {
+        result.innerHTML =
+          '<p class="notice notice--error">Completa nombre, correo y mensaje.</p>';
+      }
+      return;
+    }
+
+    const button = form.querySelector('button');
+    if (button) button.setAttribute('disabled', 'true');
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error ?? 'No se pudo enviar el mensaje');
+
+      if (result) {
+        result.innerHTML =
+          '<p class="notice notice--ok">Mensaje recibido. Te responderemos muy pronto.</p>';
+      }
+      form.reset();
+    } catch (error) {
+      if (result) {
+        result.innerHTML = `<p class="notice notice--error">${(error as Error).message}</p>`;
+      }
+    } finally {
+      if (button) button.removeAttribute('disabled');
+    }
+  });
+</script>

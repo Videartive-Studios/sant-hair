@@ -1,0 +1,81 @@
+---
+/**
+ * Set de iconos SVG en linea (stroke style, 1.4px).
+ * Uso: <Icon name="bag" size={20} />
+ */
+interface Props {
+  name: string;
+  size?: number | string;
+  class?: string;
+  fill?: boolean;
+}
+
+const { name, size = 24, class: className, fill = false } = Astro.props;
+
+const paths: Record<string, string> = {
+  search:
+    '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  bag: '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+  heart:
+    '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21.2l7.7-7.8 1.1-1a5.5 5.5 0 0 0 0-7.8Z"/>',
+  menu: '<path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/>',
+  close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  leaf: '<path d="M11 20A7 7 0 0 1 9.8 6.1C13.5 4.6 17 5 21 3c0 4-1 8-3.5 10.5C15.5 15.5 13 16 11 20Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>',
+  flask: '<path d="M9 3h6"/><path d="M10 3v6.5L4.6 18A2 2 0 0 0 6.3 21h11.4a2 2 0 0 0 1.7-3L14 9.5V3"/><path d="M7.5 15h9"/>',
+  rabbit:
+    '<path d="M8.5 3C9.5 5 9 8 7 9.5"/><path d="M15.5 3C14.5 5 15 8 17 9.5"/><path d="M12 9.5c-3 0-5 2.2-5 5.2 0 2.4 2 4.3 5 4.3s5-1.9 5-4.3c0-3-2-5.2-5-5.2Z"/><path d="M10.5 12h.01"/><path d="M13.5 12h.01"/>',
+  drop: '<path d="M12 2.7 6.7 8a7.5 7.5 0 1 0 10.6 0Z"/>',
+  truck:
+    '<path d="M3 16V6a1 1 0 0 1 1-1h10v11"/><path d="M14 9h4l3 3v4h-7Z"/><circle cx="7" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/>',
+  rotate:
+    '<path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/>',
+  shield:
+    '<path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>',
+  instagram:
+    '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>',
+  facebook:
+    '<path d="M15 3h-3a4 4 0 0 0-4 4v3H5v4h3v7h4v-7h3l1-4h-4V7a1 1 0 0 1 1-1h3Z"/>',
+  tiktok:
+    '<path d="M15 4v9.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M15 4c.5 2.5 2.2 4 4.5 4.3"/>',
+  youtube:
+    '<rect x="2" y="5" width="20" height="14" rx="4"/><path d="m10 9 5 3-5 3Z"/>',
+  whatsapp:
+    '<path d="M3 21l1.7-5A8.5 8.5 0 1 1 8 19.3L3 21Z"/><path d="M8.8 8.3c.3 2.6 2.4 4.7 5 5l.9-1.4 2.8-.3 1.8c-2.9.6-6.6-2.2-7.9-5.4l1.6-.6.7-1.7Z"/>',
+  mail: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2.5 6.5 9.5 7 9.5-7"/>',
+  phone:
+    '<path d="M15.5 21A15.5 15.5 0 0 1 3 8.5 2.5 2.5 0 0 1 5.5 6h2L9 10l-2 1.5a13 13 0 0 0 5.5 5.5L14 15l4 1.5v2A2.5 2.5 0 0 1 15.5 21Z"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
+  'chevron-right': '<path d="m9 6 6 6-6 6"/>',
+  'arrow-right': '<path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>',
+  plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+  minus: '<path d="M5 12h14"/>',
+  check: '<path d="m4 12 5.5 5.5L20 7"/>',
+  star: '<path d="m12 3 2.7 5.6 6.3.9-4.5 4.4 1 6.1-5.5-2.9-5.5 2.9 1-6.1L3 9.5l6.3-.9Z"/>',
+  sparkle:
+    '<path d="M12 2.5 13.8 9l6.5 1.8-6.5 1.8L12 19l-1.8-6.4L3.7 10.8 10.2 9Z"/><path d="M19 3v3"/><path d="M20.5 4.5h-3"/>',
+  recycle:
+    '<path d="m7 19-3-5 2-1"/><path d="M4 14 8 6l2 1"/><path d="m9 7 6 0 2 3"/><path d="M20 14 17 19l-2-1"/><path d="m19 19-6 0-2-3"/><path d="M8 19h8"/>',
+  'credit-card': '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+  award:
+    '<circle cx="12" cy="9" r="6"/><path d="m8.2 14-1.4 7 5.2-2.8 5.2 2.8-1.4-7"/>',
+  bookmark:
+    '<path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1Z"/>',
+};
+---
+
+<svg
+  xmlns="http://www w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill={fill ? 'currentColor': 'none'}
+  stroke={fill ? 'none': 'currentColor'}
+  stroke-width="1.4"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class={className}
+  aria-hidden="true"
+  focusable="false"
+  set:html={paths[name] ?? ''}
+/>

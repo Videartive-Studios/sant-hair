@@ -1,0 +1,176 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProductCard from '@/components/ProductCard.astro';
+import Icon from '@/components/Icon.astro';
+import { getProductsByCategory, getCategories } from '@/db/repo';
+
+const categoria = Astro.url.searchParams.get('categoria') ?? 'todos';
+const orden = Astro.url.searchParams.get('orden') ?? 'destacados';
+
+const categories = await getCategories();
+const products = await getProductsByCategory(categoria);
+
+const sorted = [...products].sort((a, b) => {
+  if (orden === 'precio-asc') return a.price - b.price;
+  if (orden === 'precio-desc') return b.price - a.price;
+  if (orden === 'nombre') return a.name.localeCompare(b.name);
+  return Number(b.featured) - Number(a.featured);
+});
+
+const activeCategory = categories.find((c) => c.slug === categoria);
+const title = activeCategory ? activeCategory.name: 'Tienda';
+const description = activeCategory
+  ? activeCategory.seoDescription
+: 'Todo el catalogo de Sant Hair+: shampoos, acondicionadores y mascarillas capilares de formulacion limpia.';
+
+const buildUrl = (params: Record<string, string | undefined>) => {
+  const url = new URL('/tienda', Astro.url);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) url.searchParams.set(key, value);
+  });
+  return url.pathname + url.search;
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Migas de pan">
+      <a href="/">Inicio</a>
+      <span>/</span>
+      <span aria-current="page">{title}</span>
+    </nav>
+  </div>
+
+  <section class="section section--tight" style="padding-top:0">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Catalogo</p>
+          <h1 class="display-2">{title}</h1>
+          {activeCategory && <p class="lede">{activeCategory.description}</p>}
+        </div>
+        <a class="btn btn--light btn--sm" href="/tienda">Ver la tienda</a>
+      </div>
+
+      <div class="shop-layout">
+        <aside class="filters" aria-label="Filtros">
+          <div class="filter-group">
+            <p class="filter-group__title">Categoria</p>
+            <ul class="filter-list">
+              <li>
+                <a
+                  href={buildUrl({ categoria: undefined, orden })}
+                  class={categoria === 'todos' ? 'is-active': ''}
+                >
+                  Todos los productos
+                  <span>·</span>
+                </a>
+              </li>
+              {
+                categories.map((category) => (
+                  <li>
+                    <a
+                      href={buildUrl({ categoria: category.slug, orden })}
+                      class={categoria === category.slug ? 'is-active': ''}
+                    >
+                      {category.name}
+                      <Icon name="chevron-right" size={14} />
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <div class="filter-group">
+            <p class="filter-group__title">Ordenar por</p>
+            <ul class="filter-list">
+              {
+                [
+                  { id: 'destacados', label: 'Destacados' },
+                  { id: 'precio-asc', label: 'Precio: menor a mayor' },
+                  { id: 'precio-desc', label: 'Precio: mayor a menor' },
+                  { id: 'nombre', label: 'Nombre' },
+                ].map((option) => (
+                  <li>
+                    <a
+                      href={buildUrl({ categoria, orden: option.id })}
+                      class={orden === option.id ? 'is-active': ''}
+                    >
+                      {option.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </aside>
+
+        <div>
+          <div class="shop-toolbar">
+            <p class="shop-toolbar__count">
+              {sorted.length} {sorted.length === 1 ? 'producto': 'productos'}
+            </p>
+            <a class="link-underline" href="/carrito">Ver carrito</a>
+          </div>
+
+          {
+            sorted.length > 0 ? (
+              <div class="product-grid">
+                {sorted.map((product) => (
+                  <ProductCard product={product} />
+                ))}
+              </div>
+            ): (
+              <div class="summary-card text-center">
+                <h2 class="summary-card__title">No hay productos en esta categoria</h2>
+                <p style="color:var(--muted)">
+                  Prueba con otra categoria o vuelve al catalogo completo.
+                </p>
+                <a class="btn btn--light" href="/tienda" style="margin-top:1.25rem">
+                  Ver todo el catalogo
+                </a>
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FRANJA DE CONFIANZA ================= -->
+  <section class="section section--cream section--tight">
+    <div class="container">
+      <ul class="feature-bar" style="border:none">
+        <li class="feature">
+          <Icon name="truck" size={30} class="feature__icon" />
+          <div>
+            <p class="feature__title">Envio gratis</p>
+            <p class="feature__text">En pedidos superiores a $150.000</p>
+          </div>
+        </li>
+        <li class="feature">
+          <Icon name="rotate" size={30} class="feature__icon" />
+          <div>
+            <p class="feature__title">Devoluciones faciles</p>
+            <p class="feature__text">14 dias para cambiar tu pedido</p>
+          </div>
+        </li>
+        <li class="feature">
+          <Icon name="shield" size={30} class="feature__icon" />
+          <div>
+            <p class="feature__title">Pago seguro</p>
+            <p class="feature__text">100% checkout protegido</p>
+          </div>
+        </li>
+        <li class="feature">
+          <Icon name="whatsapp" size={30} class="feature__icon" />
+          <div>
+            <p class="feature__title">Asesoria directa</p>
+            <p class="feature__text">Escríbenos por WhatsApp</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

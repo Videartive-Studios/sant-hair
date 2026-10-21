@@ -1,0 +1,70 @@
+---
+import Icon from './Icon.astro';
+import type { Product } from '@/data/catalog';
+import { SITE } from '@/data/site';
+
+interface Props {
+  product: Product;
+  eager?: boolean;
+}
+
+const { product, eager = false } = Astro.props;
+
+const formatMoney = (value: number) =>
+  new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: SITE.currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+
+const discount = product.compareAtPrice
+  ? Math.round((1 - product.price / product.compareAtPrice) * 100)
+: 0;
+---
+
+<article class="product-card">
+  <div class="product-card__media">
+    {product.badge && <span class="product-card__badge">{product.badge}</span>}
+    <button
+      class="product-card__wish"
+      type="button"
+      aria-label={`Agregar ${product.name} a favoritos`}
+    >
+      <Icon name="heart" size={17} />
+    </button>
+    <img
+      src={product.image}
+      alt={product.name}
+      width="520"
+      height="520"
+      loading={eager ? 'eager': 'lazy'}
+      decoding="async"
+    />
+  </div>
+
+  <div class="product-card__body">
+    <h3 class="product-card__title">
+      <a href={`/tienda/${product.slug}`}>{product.name}</a>
+    </h3>
+    <p class="product-card__size">{product.size}</p>
+    <p class="product-card__price">
+      {formatMoney(product.price)}
+      {product.compareAtPrice && <del>{formatMoney(product.compareAtPrice)}</del>}
+    </p>
+
+    <div class="product-card__cta">
+      <button
+        class="btn btn--sm btn--block"
+        type="button"
+        data-add-to-cart
+        data-slug={product.slug}
+        data-name={product.name}
+        data-price={product.price}
+        data-image={product.image}
+        data-size={product.size}
+      >
+        {discount > 0 ? `Agregar -${discount}%`: 'Agregar al carrito'}
+      </button>
+    </div>
+  </div>
+</article>

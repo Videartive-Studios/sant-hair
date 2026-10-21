@@ -1,0 +1,130 @@
+---
+import Icon from './Icon.astro';
+import { SITE } from '@/data/site';
+
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+const links = [
+  { label: 'Inicio', href: '/' },
+  { label: 'Nosotros', href: '/nosotros' },
+  { label: 'Tienda', href: '/tienda' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Contacto', href: '/contacto' },
+];
+
+const isActive = (href: string) =>
+  href === '/' ? pathname === '/': pathname.startsWith(href);
+---
+
+<header class="header" data-header>
+  <div class="container header__inner">
+    <div class="header__left">
+      <button
+        class="icon-btn header__burger"
+        type="button"
+        data-menu-open
+        aria-label="Abrir menu"
+        aria-expanded="false"
+      >
+        <Icon name="menu" size={22} />
+      </button>
+
+      <a class="header__logo" href="/" aria-label={`${SITE.brand} — inicio`}>
+        <img
+          src="/img/logo-horizontal-ink.webp"
+          alt={SITE.brandFull}
+          width="630"
+          height="173"
+        />
+      </a>
+    </div>
+
+    <nav class="nav" aria-label="Navegacion principal">
+      {
+        links.map((link) => (
+          <a
+            class="nav__link"
+            href={link.href}
+            aria-current={isActive(link.href) ? 'page': undefined}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="header__actions">
+      <a class="icon-btn" href="/tienda" aria-label="Buscar productos">
+        <Icon name="search" size={20} />
+      </a>
+      <a class="icon-btn icon-btn--user" href="/contacto" aria-label="Mi cuenta">
+        <Icon name="user" size={20} />
+      </a>
+      <button class="icon-btn" type="button" data-cart-open aria-label="Abrir carrito">
+        <Icon name="bag" size={20} />
+        <span class="cart-count" data-cart-count aria-live="polite">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" data-mobile-menu id="menu-movil" aria-hidden="true">
+  <button
+    class="icon-btn mobile-menu__close"
+    type="button"
+    data-menu-close
+    aria-label="Cerrar menu"
+  >
+    <Icon name="close" size={24} />
+  </button>
+
+  <nav aria-label="Navegacion movil">
+    {
+      links.map((link, index) => (
+        <a
+          class="mobile-menu__link"
+          href={link.href}
+          aria-current={isActive(link.href) ? 'page': undefined}
+        >
+          <span>0{index + 1}</span>
+          {link.label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="mobile-menu__foot">
+    <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+    <a href={`tel:${SITE.phoneHref}`}>{SITE.phoneDisplay}</a>
+  </div>
+</div>
+
+<script>
+  // Menu movil
+  const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+  const openBtn = document.querySelector<HTMLElement>('[data-menu-open]');
+  const closeBtn = document.querySelector<HTMLElement>('[data-menu-close]');
+
+  const setMenu = (open: boolean) => {
+    if (!menu) return;
+    menu.classList.toggle('is-open', open);
+    menu.setAttribute('aria-hidden', String(!open));
+    openBtn?.setAttribute('aria-expanded', String(open));
+    document.body.style.overflow = open ? 'hidden': '';
+  };
+
+  openBtn?.addEventListener('click', () => setMenu(true));
+  closeBtn?.addEventListener('click', () => setMenu(false));
+  menu?.querySelectorAll('a').forEach((a) =>
+    a.addEventListener('click', () => setMenu(false)),
+  );
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setMenu(false);
+  });
+
+  // Header con sombra al hacer scroll
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const onScroll = () => header?.classList.toggle('is-stuck', window.scrollY > 10);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>

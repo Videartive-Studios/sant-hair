@@ -1,0 +1,66 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { LEGAL_DOCS } from '@/data/legal';
+
+const { slug } = Astro.params;
+const doc = LEGAL_DOCS.find((d) => d.slug === slug);
+
+if (!doc) {
+  return Astro.redirect('/');
+}
+
+const formatDate = (value: string) =>
+  new Intl.DateTimeFormat('es-CO', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(`${value}T12:00:00Z`));
+---
+
+<BaseLayout title={doc.title} description={doc.intro}>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Migas de pan">
+      <a href="/">Inicio</a>
+      <span>/</span>
+      <span aria-current="page">{doc.title}</span>
+    </nav>
+  </div>
+
+  <section class="section" style="padding-top:1rem">
+    <div class="container container--narrow">
+      <div class="stack stack-3">
+        <div class="stack stack-2">
+          <p class="eyebrow">Legal</p>
+          <h1 class="display-2">{doc.title}</h1>
+          <p class="lede">{doc.intro}</p>
+          <p style="font-size:.8rem;color:var(--muted)">
+            Ultima actualizacion: {formatDate(doc.updated)}
+          </p>
+        </div>
+
+        <div class="prose">
+          {
+            doc.sections.map((section) => (
+              <>
+                <h2>{section.heading}</h2>
+                {section.body.map((paragraph) => (
+                  <p>{paragraph}</p>
+                ))}
+              </>
+            ))
+          }
+        </div>
+
+        <div class="summary-card">
+          <h2 class="summary-card__title">¿Alguna duda?</h2>
+          <p style="color:var(--muted);font-size:.93rem">
+            Escribenos y te ayudamos. Respondemos en menos de 24 horas habiles.
+          </p>
+          <a class="btn btn--light" href="/contacto" style="margin-top:1.25rem">
+            Ir a contacto
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

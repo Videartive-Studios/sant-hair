@@ -1,0 +1,130 @@
+---
+import '@/styles/global.css';
+import TopBar from '@/components/TopBar.astro';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import CartDrawer from '@/components/CartDrawer.astro';
+import { SITE } from '@/data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+  canonical?: string;
+}
+
+const {
+  title,
+  description = SITE.description,
+  image = '/img/mockup-claro.webp',
+  noindex = false,
+  canonical,
+} = Astro.props;
+
+const pageTitle = title
+  ? `${title} | ${SITE.brand}`
+: `${SITE.brandFull} | Cuidado capilar de autor`;
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
+const imageUrl = new URL(image, Astro.site).toString();
+
+// Cache corto en el CDN: los precios y el stock se editan desde /admin y
+// deben verse reflejados en pocos minutos, no en un año.
+if (!noindex) {
+  Astro.response.headers.set(
+    'Cache-Control',
+    'public, max-age=0, s-maxage=120, stale-while-revalidate=600',
+  );
+} else {
+  Astro.response.headers.set('Cache-Control', 'no-store');
+}
+---
+
+<!doctype.html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.brandFull} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:locale" content={SITE.locale} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/webp" href="/img/favicon.webp" />
+    <link rel="apple-touch-icon" href="/img/favicon.webp" />
+    <meta name="theme-color" content="#0b0b0a" />
+    <noscript>
+      <style>
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      </style>
+    </noscript>
+    <script is:inline>
+      // Marca que hay JavaScript: las animaciones de entrada solo se activan
+      // si el navegador puede gestionarlas. Sin JS, todo el contenido
+      // permanece visible.
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+    <TopBar />
+    <Header />
+
+    <main id="contenido">
+      <slot />
+    </main>
+
+    <Footer />
+    <CartDrawer />
+
+    <script>
+      import { initCart } from '@/scripts/cart';
+      initCart();
+
+      // Animacion de entrada al hacer scroll
+      const reveal = () => {
+        const items = document.querySelectorAll<HTMLElement>('.reveal');
+        if (!items.length) return;
+
+        // Si el navegador no soporta el observador, se muestra todo.
+        if (!('IntersectionObserver' in window)) {
+          items.forEach((item) => item.classList.add('is-visible'));
+          return;
+        }
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+        );
+        items.forEach((item) => observer.observe(item));
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', reveal);
+      } else {
+        reveal();
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,162 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/Icon.astro';
+import { FEATURES } from '@/data/site';
+import { TESTIMONIALS } from '@/data/content';
+---
+
+<BaseLayout
+  title="Sobre nosotros"
+  description="Conoce Sant Hair+: una linea capilar de formulacion limpia, creada para tratar el cabello real. Nuestra historia, nuestros principios y nuestro Compromiso."
+>
+  <section class="hero" style="background:linear-gradient(115deg,#0b0b0a 0%,#1a1712 60%,#241f18 100%)">
+    <div class="container hero__inner" style="color:var(--cream)">
+      <div>
+        <p class="eyebrow" style="color:var(--gold-soft)">Nuestra historia</p>
+        <h1 class="display-1 hero__title">
+          Nació de un cabello
+          <em style="color:var(--gold-soft)">que ya no respondia.</em>
+        </h1>
+        <p class="lede" style="color:rgba(246,242,234,.72)">
+          Sant Hair+ nacio de una pregunta simple: si el mercado solo ofrece
+          productos que prometen mucho y Moisturizan poco, por que no formular lo
+          contrario? Menos ingredientes, mas evidencia, resultados que se noten.
+        </p>
+      </div>
+      <div class="hero__media hero__media--logo">
+        <div class="hero__glow"></div>
+        <img
+          src="/img/logo-horizontal.webp"
+          alt="Sant Hair+ Linea Capilar"
+          width="630"
+          height="173"
+          loading="eager"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="split">
+        <div class="figura-fraccos">
+          <img
+            src="/img/hero-fraccos.webp"
+            alt="Linea Sant Hair+"
+            width="984"
+            height="844"
+            loading="lazy"
+          />
+        </div>
+        <div class="stack stack-3">
+          <p class="eyebrow">Lo que creemos</p>
+          <h2 class="display-2">Cuidado capilar, sin tambien de mas.</h2>
+          <p style="color:var(--text-2)">
+            Creemos en el poder de los ingredientes que se pueden leer y entender. Por
+            eso nuestra linea es deliberadamente corta: tres productos, tres funciones
+            clara, cero formulas de relleno. Shampoo que limpia sin destruir,
+            acondicionador que desenreda sin pesar, y una mascarilla que repara de verdad.
+          </p>
+          <p style="color:var(--text-2)">
+            No creemos en las promesas imposibles. Creemos en rutinas que se sostienen
+            en el tiempo, en formulas que se pueden justificar ingrediente a
+            ingrediente y en un producto que se siente bien desde el primer uso.
+          </p>
+          <div class="cluster" style="gap:.85rem">
+            <a class="btn" href="/tienda">Ver la linea</a>
+            <a class="btn btn--light" href="/blog">Leer el blog</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--cream">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <div>
+          <p class="eyebrow">Nuestros principios</p>
+          <h2 class="section-head__title">Cuatro cosas que no negociamos</h2>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        {
+          FEATURES.map((feature) => (
+            <div class="feature" style="background:#fff;border:1px solid var(--line);padding:1.75rem">
+              <Icon name={feature.icon} size={32} class="feature__icon" />
+              <div>
+                <h3 class="feature__title" style="font-size:1.15rem">
+                  {feature.title}
+                </h3>
+                <p class="feature__text" style="font-size:.92rem">
+                  {feature.text}
+                </p>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <div>
+          <p class="eyebrow">Testimonios</p>
+          <h2 class="section-head__title">Lo dicen ellas</h2>
+        </div>
+      </div>
+
+      <div class="testimonial-grid">
+        {
+          TESTIMONIALS.map((testimonial) => (
+            <figure class="testimonial" style="background:#fff">
+              <div class="stars" aria-label={`${testimonial.rating} de 5 estrellas`}>
+                {Array.from({ length: testimonial.rating }).map(() => (
+                  <Icon name="star" size={15} fill />
+                ))}
+              </div>
+              <blockquote class="testimonial__text">
+                &laquo;{testimonial.text}&raquo;
+              </blockquote>
+              <figcaption class="testimonial__author">
+                <strong>{testimonial.name}</strong>
+                {testimonial.city} &middot; {testimonial.product}
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="promo">
+    <div class="container promo__inner">
+      <div>
+        <p class="eyebrow">Empieza por aqui</p>
+        <h2 class="promo__title">
+          Tu rutina empieza
+          <em>con un solo paso</em>
+        </h2>
+        <p class="lede">
+          Si no sabes por donde empezar, empieza por el Shampoo Nutritivo. Es el paso
+          que cambia el resto del ritual.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--gold" href="/tienda/shampoo-nutritivo-sant-hair">Ver el shampoo</a>
+        </div>
+      </div>
+      <div class="promo__media">
+        <img
+          src="/img/hero-fraccos.webp"
+          alt="Productos Sant Hair+"
+          width="984"
+          height="844"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
