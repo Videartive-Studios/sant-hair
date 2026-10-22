@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import { SITE, FOOTER_LINKS } from '@/data/site';
+import { img } from '@/lib/assets';
 
 const year = new Date().getFullYear();
 ---
@@ -10,7 +11,7 @@ const year = new Date().getFullYear();
     <div class="footer__top">
       <div class="footer__brand">
         <img
-          src="/img/logo-horizontal.webp"
+          src={img('/img/logo-horizontal.webp')}
           alt={SITE.brandFull}
           width="630"
           height="173"

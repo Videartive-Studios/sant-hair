@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import { SITE } from '@/data/site';
+import { img } from '@/lib/assets';
 
 const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 
@@ -31,7 +32,7 @@ const isActive = (href: string) =>
 
       <a class="header__logo" href="/" aria-label={`${SITE.brand} — inicio`}>
         <img
-          src="/img/logo-horizontal-ink.webp"
+          src={img('/img/logo-horizontal-ink.webp')}
           alt={SITE.brandFull}
           width="630"
           height="173"

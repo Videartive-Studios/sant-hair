@@ -7,6 +7,7 @@ import { SITE, FEATURES } from '@/data/site';
 import { CATEGORIES } from '@/data/catalog';
 import { TESTIMONIALS } from '@/data/content';
 import { getPublishedProducts } from '@/db/repo';
+import { img } from '@/lib/assets';
 
 const products = await getPublishedProducts();
 const newArrivals = [...products].reverse().slice(0, 4);
@@ -56,10 +57,10 @@ const formatMoney = (value: number) =>
       <div class="hero__media">
         <div class="hero__glow"></div>
         <img
-          src="/img/hero-fraccos.webp"
+          src={img('/img/hero-frascos.webp')}
           alt="Envases de la línea capilar Sant Hair+"
-          width="984"
-          height="844"
+          width="1354"
+          height="1161"
           loading="eager"
           fetchpriority="high"
         />
@@ -103,7 +104,7 @@ const formatMoney = (value: number) =>
             <a class="category-card" href={`/tienda?categoria=${category.slug}`}>
               <img
                 class="category-card__img"
-                src={category.image}
+                src={img(category.image)}
                 alt={`${category.name} Sant Hair+`}
                 width="520"
                 height="520"
@@ -145,10 +146,10 @@ const formatMoney = (value: number) =>
       </div>
       <div class="promo__media">
         <img
-          src="/img/mockup-negro.webp"
+          src={img('/img/mockup-negro.webp')}
           alt="Línea Sant Hair+ completa sobre fondo negro"
-          width="992"
-          height="1056"
+          width="1354"
+          height="1161"
           loading="lazy"
         />
       </div>

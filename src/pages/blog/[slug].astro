@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { BLOG_POSTS } from '@/data/content';
 import { articleSchema, breadcrumbSchema } from '@/lib/seo';
+import { img } from '@/lib/assets';
 
 const { slug } = Astro.params;
 const post = BLOG_POSTS.find((p) => p.slug === slug);
@@ -30,7 +31,7 @@ const breadcrumbs = [
 <BaseLayout
   title={post.title}
   description={post.excerpt}
-  image={post.cover}
+  image={img(post.cover)}
   ogType="article"
   schema={[articleSchema(post), breadcrumbSchema(breadcrumbs)]}
 >
@@ -61,7 +62,7 @@ const breadcrumbs = [
 
       <div class="ratio-4-3 ratio-4-3--contain" style="margin-bottom:2.5rem">
         <img
-          src={post.cover}
+          src={img(post.cover)}
           alt={post.title}
           width="1200"
           height="750"
@@ -107,7 +108,7 @@ const breadcrumbs = [
               <article class="post-card">
                 <a class="post-card__media" href={`/blog/${item.slug}`}>
                   <img
-                    src={item.cover}
+                    src={img(item.cover)}
                     alt={item.title}
                     width="1200"
                     height="750"

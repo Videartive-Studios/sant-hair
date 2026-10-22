@@ -7,6 +7,7 @@ import CartDrawer from '@/components/CartDrawer.astro';
 import JsonLd from '@/components/JsonLd.astro';
 import { SITE } from '@/data/site';
 import { organizationSchema } from '@/lib/seo';
+import { img } from '@/lib/assets';
 
 interface Props {
   title?: string;
@@ -22,7 +23,7 @@ interface Props {
 const {
   title,
   description = SITE.description,
-  image = '/img/og-santhair.png',
+  image = img('/img/og-santhair.png'),
   noindex = false,
   canonical,
   ogType = 'website',
@@ -77,8 +78,8 @@ if (!noindex) {
     <meta name="twitter:image" content={imageUrl} />
     <meta name="twitter:image:alt" content={`${SITE.brandFull} — ${SITE.tagline}`} />
 
-    <link rel="icon" type="image/webp" href="/img/favicon.webp" />
-    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    <link rel="icon" type="image/webp" href={img('/img/favicon.webp')} />
+    <link rel="apple-touch-icon" href={img('/img/apple-touch-icon.png')} />
     <meta name="theme-color" content="#0b0b0a" />
     <link rel="sitemap" href="/sitemap.xml" />
     <noscript>

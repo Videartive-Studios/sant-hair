@@ -7,6 +7,7 @@
  */
 
 import { SITE } from '@/data/site';
+import { img } from '@/lib/assets';
 
 const abs = (path: string) => new URL(path, SITE.url).toString();
 
@@ -23,11 +24,11 @@ export function organizationSchema() {
         url: SITE.url,
         logo: {
           '@type': 'ImageObject',
-          url: abs('/img/logo-horizontal.png'),
+          url: abs(img('/img/logo-horizontal.png')),
           width: 630,
           height: 173,
         },
-        image: abs('/img/mockup-claro.webp'),
+        image: abs(img('/img/mockup-claro.webp')),
         description: SITE.description,
         email: SITE.email,
         telephone: SITE.phoneHref,

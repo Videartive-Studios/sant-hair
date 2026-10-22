@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { BLOG_POSTS } from '@/data/content';
 import { breadcrumbSchema } from '@/lib/seo';
+import { img } from '@/lib/assets';
 
 const formatDate = (value: string) =>
   new Intl.DateTimeFormat('es-CO', {
@@ -47,7 +48,7 @@ const breadcrumbs = [
             <article class="post-card">
               <a class="post-card__media" href={`/blog/${post.slug}`}>
                 <img
-                  src={post.cover}
+                  src={img(post.cover)}
                   alt={post.title}
                   width="1200"
                   height="750"

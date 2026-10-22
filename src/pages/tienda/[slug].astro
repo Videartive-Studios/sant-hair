@@ -5,6 +5,7 @@ import Icon from '@/components/Icon.astro';
 import { getProduct, getPublishedProducts } from '@/db/repo';
 import { SITE } from '@/data/site';
 import { breadcrumbSchema, productSchema } from '@/lib/seo';
+import { img } from '@/lib/assets';
 
 const { slug } = Astro.params;
 const product = slug ? await getProduct(slug) : undefined;
@@ -43,7 +44,7 @@ const breadcrumbs = [
 <BaseLayout
   title={product.seoTitle}
   description={product.seoDescription}
-  image={product.image}
+  image={img(product.image)}
   ogType="product"
   schema={[productSchema(product), breadcrumbSchema(breadcrumbs)]}
 >
@@ -65,7 +66,7 @@ const breadcrumbs = [
           <div class="pdp__main">
             <img
               id="pdp-main-image"
-              src={product.gallery[0]}
+              src={img(product.gallery[0])}
               alt={`${product.name} Sant Hair+ ${product.size}`}
               width="800"
               height="800"
@@ -83,7 +84,7 @@ const breadcrumbs = [
                     data-gallery-thumb={image}
                     aria-label={`Ver imagen ${index + 1} de ${product.name}`}
                   >
-                    <img src={image} alt="" width="78" height="78" loading="lazy" />
+                    <img src={img(image)} alt="" width="78" height="78" loading="lazy" />
                   </button>
                 ))}
               </div>
@@ -142,7 +143,7 @@ const breadcrumbs = [
               data-slug={product.slug}
               data-name={product.name}
               data-price={product.price}
-              data-image={product.image}
+              data-image={img(product.image)}
               data-size={product.size}
               disabled={outOfStock}
             >
