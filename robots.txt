@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Paginas privadas o de utilidad: no hace falta indexarlas
+Disallow: /admin
+Disallow: /carrito
+Disallow: /checkout
+Disallow: /gracias
+Disallow: /api/
+
+Sitemap: https://santhair.com/sitemap.xml

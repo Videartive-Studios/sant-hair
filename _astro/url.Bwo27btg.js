@@ -1,0 +1,1 @@
+var e=`/sant-hair/`.replace(/\/+$/,``);function t(t){return!t||!t.startsWith(`/`)?t:`${e}${t}`}export{t};
