@@ -275,6 +275,7 @@ despues de editar el codigo:
 | `python scripts/listar-selectores.py` | Lista todos los selectores del CSS para revisarlos |
 | `node scripts/test-interaccion.mjs` | Prueba el carrito y el menú con un navegador real |
 | `node scripts/test-scroll.mjs` | Comprueba las animaciones de entrada al hacer scroll |
+| `node scripts/test-rejilla.mjs` | Comprueba las columnas de la rejilla de la tienda en 10 anchos de pantalla |
 | `node scripts/capturar.mjs <salida> <url>` | Captura una página entera con Chrome |
 | `node scripts/capturar-admin.mjs <salida>` | Captura el panel de administración con la sesión iniciada |
 | `npm run fix:copy` | Elimina caracteres CJK incrustados |
@@ -407,25 +408,53 @@ que Vite inyecta los estilos en línea y no se pueden calcular sus hashes.
 
 ## 12. Imágenes
 
-Las imágenes se generan desde `D:\Diana Santamaria\Sant Hair\Logo\Finales`:
+Las imágenes se generan desde `D:\Diana Santamaria\Sant Hair\Logo\Finales`
+y desde `D:\Diana Santamaria\Trío SANT HAIR+ en negro y dorado.png`:
 
 ```bash
 python scripts/preparar-imagenes.py # recortes + conversiones a WebP
-python scripts/post-proceso-imagenes.py # quita el fondo y crea el logo en tinta
+python scripts/post-proceso-imagenes.py # quita el fondo y crea el logo de cabecera
+python scripts/logos-y-portadas.py # logo circular claro + portadas de blog
+python scripts/componer-hero.py # hero de la línea completa
 python scripts/generar-imagenes-social.py # imagen de redes + icono de iOS
 ```
+
+### Edita los originales, nunca `public/img`
+
+`public/img/` es una carpeta **generada**: cualquier cambio hecho a mano se
+pierte la próxima vez que se ejecute un script, y si se abre un `.webp` de
+esa carpeta con Photoshop, Camera Raw lo renombra a `.xmp` y borra el
+original (deja la imagen rota en el sitio).
+
+El flujo correcto es:
+
+1. Editar el archivo maestro en `Sant Hair\Logo\Finales` (o el PNG del trío).
+2. Ejecutar los scripts de arriba.
+3. `public/img/` se regenera solo.
+
+Si se necesita retocar una imagen ya generada, se exporta a una carpeta
+fuera del repositorio y se convierte en el maestro.
+
+### Versión de los recursos
+
+Netlify sirve `/img/*` con `Cache-Control: max-age=31536000, immutable`: si
+una imagen cambia sin cambiar de nombre, el navegador y la CDN siguen
+sirviendo la anterior hasta un año. Como estas imágenes viven en `public/`
+y no en `src/assets/`, Astro no les pone hash, así que `src/lib/assets.ts`
+añade un parámetro `?v=` a cada URL. **Al cambiar una imagen, sube
+`ASSETS_VERSION`** en ese archivo para que todo el mundo reciba la nueva.
 
 El resultado queda en `public/img/`:
 
 | Archivo | Uso |
 | --- | --- |
-| `logo-horizontal-ink.webp` | Logo oscuro para la cabecera clara |
-| `logo-horizontal.webp` | Logo dorado para el pie (fondo oscuro) |
+| `logo-horizontal-ink.webp` | Logo dorado de marca (cabecera) |
+| `logo-horizontal.webp` | Logo dorado de marca (pie y página de marca) |
 | `logo-circular.png` | Logo circular |
 | `producto-*.webp` | Fotos de producto con fondo transparente |
-| `hero-fraccos.webp` | Los tres frascos sin fondo, con sombra inferior |
+| `hero-frascos.webp` | Los tres frascos sin fondo, con sombra inferior |
 | `mockup-claro.webp` | Mockup de la línea completa sobre crema |
-| `mockup-negro*.webp` | Mockups sobre negro (secciones oscuras) |
+| `mockup-negro*.webp` | Línea completa sin fondo (secciones oscuras) |
 | `portada-*.webp` | Portadas de blog en 16:10 con el producto completo |
 | `og-santhair.png` | Imagen de redes sociales (1200×630, PNG) |
 | `apple-touch-icon.png` | Icono para iOS (180×180, PNG) |
