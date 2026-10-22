@@ -679,6 +679,15 @@ hr {
   gap: clamp(1.25rem, 2.4vw, 2.25rem);
 }
 
+/* En la tienda todas las categorias comparten la misma rejilla que la vista
+   de todo el catalogo: tres columnas. A diferencia de `auto-fit`, las
+   columnas vacias se conservan, de modo que una categoria con un solo
+   producto lo deja en su columna, con el ancho de una tarjeta, y no lo
+   estira a todo el ancho disponible. */
+.product-grid--shop {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .product-card {
   position: relative;
   display: flex;
@@ -2317,6 +2326,11 @@ hr {
   }
 
 .grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* La tienda pasa a dos columnas cuando la barra de filtros se apila. */
+  .product-grid--shop {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
