@@ -79,10 +79,12 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
-          # `dist/` y `node_modules/` no se publican nunca. Se excluyen con
-          # `.git/info/exclude` en vez de con `.gitignore`, para no dejar un
-          # `.gitignore` en la rama `gh-pages` (se publicaria como archivo).
-          printf 'dist/\nnode_modules/\n' >> .git/info/exclude
+          # `dist/`, `node_modules/` y las carpetas de cache no se publican
+          # nunca. Se excluyen con `.git/info/exclude` en vez de con
+          # `.gitignore`, porque la rama `gh-pages` no lleva un `.gitignore`
+          # (se publicaria como archivo) y sin el, `git add -A` se llevaria
+          # tambien las carpetas sin versionar.
+          printf 'dist/\nnode_modules/\n.astro/\n.data/\n' >> .git/info/exclude
 
           # Se trabaja sobre la rama `gh-pages`, que guarda todas las vistas
           # previas. Si todavia no existe, se crea desde cero.
@@ -123,18 +125,20 @@ jobs:
 
       - name: Habilitar GitHub Pages
         continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          curl -sS -X POST \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pages" \
-            -d '{"source":{"branch":"gh-pages","path":"/"}}' || true
+          if ! gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then
+            gh api --method POST "repos/${{ github.repository }}/pages" \
+              -f "source[branch]=gh-pages" -f "source[path]=/" || true
+          fi
 
       - name: Comentar la vista previa en el PR
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr comment "${{ github.event.pull_request.number }}" \
             --body "Vista previa: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ steps.meta.outputs.carpeta }}/" \
-            --edit-last
+            --edit-last --create-if-none
