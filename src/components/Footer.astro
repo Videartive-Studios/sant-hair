@@ -1,7 +1,8 @@
 ---
 import Icon from './Icon.astro';
 import { SITE, FOOTER_LINKS } from '@/data/site';
-import { img } from '@/lib/assets';
+import { imgSrc } from '@/lib/assets';
+import { url } from '@/lib/url';
 
 const year = new Date().getFullYear();
 ---
@@ -11,7 +12,7 @@ const year = new Date().getFullYear();
     <div class="footer__top">
       <div class="footer__brand">
         <img
-          src={img('/img/logo-horizontal.webp')}
+          src={imgSrc('/img/logo-horizontal.webp')}
           alt={SITE.brandFull}
           width="630"
           height="173"
@@ -43,7 +44,7 @@ const year = new Date().getFullYear();
             <ul class="footer__links">
               {group.links.map((link) => (
                 <li>
-                  <a href={link.href}>{link.label}</a>
+                  <a href={url(link.href)}>{link.label}</a>
                 </li>
               ))}
             </ul>
@@ -57,11 +58,11 @@ const year = new Date().getFullYear();
         &copy; {year} {SITE.brandFull}. Todos los derechos reservados.
       </p>
       <nav class="footer__legal" aria-label="Enlaces legales">
-        <a href="/legal/privacidad">Privacidad</a>
-        <a href="/legal/terminos">Términos y condiciones</a>
-        <a href="/legal/envios">Política de envíos</a>
-        <a href="/legal/devoluciones">Cambios y devoluciones</a>
-        <a href="/contacto">Contacto</a>
+        <a href={url('/legal/privacidad')}>Privacidad</a>
+        <a href={url('/legal/terminos')}>Términos y condiciones</a>
+        <a href={url('/legal/envios')}>Política de envíos</a>
+        <a href={url('/legal/devoluciones')}>Cambios y devoluciones</a>
+        <a href={url('/contacto')}>Contacto</a>
       </nav>
     </div>
 

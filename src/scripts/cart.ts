@@ -6,6 +6,7 @@
 
 import { escapeHtml, safeImageSrc } from '@/lib/escape';
 import { PROMO_CODES, normalizeCode, resolvePromo } from '@/lib/promo';
+import { url } from '@/lib/url';
 
 export type CartItem = {
   slug: string;
@@ -193,8 +194,8 @@ function renderCartFooter() {
     }
     <div class="cart-summary"><span>Envío</span><span>${shipping === 0 ? 'Gratis' : formatMoney(shipping)}</span></div>
     <div class="cart-summary cart-summary--total"><span>Total</span><span>${formatMoney(total)}</span></div>
-    <a class="btn btn--gold btn--block" href="/checkout" style="margin-top:1rem">Finalizar compra</a>
-    <a class="btn btn--light btn--block" href="/carrito" style="margin-top:.6rem">Ver carrito completo</a>`;
+    <a class="btn btn--gold btn--block" href="${url('/checkout')}" style="margin-top:1rem">Finalizar compra</a>
+    <a class="btn btn--light btn--block" href="${url('/carrito')}" style="margin-top:.6rem">Ver carrito completo</a>`;
 }
 
 function renderDrawer() {
@@ -210,7 +211,7 @@ function renderDrawer() {
           <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
         </svg>
         <p>Tu carrito está vacío</p>
-        <a class="btn btn--light btn--sm" href="/tienda" style="margin-top:1.25rem">Explorar la tienda</a>
+        <a class="btn btn--light btn--sm" href="${url('/tienda')}" style="margin-top:1.25rem">Explorar la tienda</a>
       </div>`;
     renderCartFooter();
     return;
@@ -220,11 +221,11 @@ function renderDrawer() {
     .map(
       (item) => `
       <div class="cart-line" data-slug="${escapeHtml(item.slug)}">
-        <a class="cart-line__img" href="/tienda/${encodeURIComponent(item.slug)}">
+        <a class="cart-line__img" href="${url(`/tienda/${encodeURIComponent(item.slug)}`)}">
           <img src="${safeImageSrc(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" />
         </a>
         <div>
-          <a class="cart-line__name" href="/tienda/${encodeURIComponent(item.slug)}">${escapeHtml(item.name)}</a>
+          <a class="cart-line__name" href="${url(`/tienda/${encodeURIComponent(item.slug)}`)}">${escapeHtml(item.name)}</a>
           <div class="cart-line__meta">${escapeHtml(item.size)}</div>
           <div class="qty" style="margin-top:.55rem;transform:scale(.86);transform-origin:left center">
             <button type="button" data-cart-decrease aria-label="Restar una unidad">&minus;</button>

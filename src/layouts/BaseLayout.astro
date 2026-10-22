@@ -7,7 +7,8 @@ import CartDrawer from '@/components/CartDrawer.astro';
 import JsonLd from '@/components/JsonLd.astro';
 import { SITE } from '@/data/site';
 import { organizationSchema } from '@/lib/seo';
-import { img } from '@/lib/assets';
+import { img, imgSrc } from '@/lib/assets';
+import { path, url } from '@/lib/url';
 
 interface Props {
   title?: string;
@@ -37,8 +38,16 @@ const pageTitle = title
     ? title
     : `${title} | ${SITE.brand}`
   : `${SITE.brandFull} | Cuidado capilar de autor`;
-const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
-const imageUrl = new URL(image, Astro.site).toString();
+
+// El canonical y la imagen social apuntan siempre al sitio real, nunca a la
+// vista previa de GitHub Pages: la vista previa es un demo y no debe
+// aparecer en buscadores ni competir con el sitio en el ranking.
+const canonicalUrl = canonical ?? new URL(path(Astro.url.pathname), SITE.url).toString();
+const imageUrl = new URL(image, SITE.url).toString();
+
+// La vista previa se marca como no indexable. Lo mismo hacen las paginas
+// privadas (carrito, checkout, gracias) con `noindex`.
+const vistaPrevia = import.meta.env.PUBLIC_PREVIEW === '1';
 
 // Cache corto en el CDN: los precios y el stock se editan desde /admin y
 // deben verse reflejados en pocos minutos, no en un año.
@@ -60,7 +69,7 @@ if (!noindex) {
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {(noindex || vistaPrevia) && <meta name="robots" content="noindex, nofollow" />}
 
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={SITE.brandFull} />
@@ -78,10 +87,10 @@ if (!noindex) {
     <meta name="twitter:image" content={imageUrl} />
     <meta name="twitter:image:alt" content={`${SITE.brandFull} — ${SITE.tagline}`} />
 
-    <link rel="icon" type="image/webp" href={img('/img/favicon.webp')} />
-    <link rel="apple-touch-icon" href={img('/img/apple-touch-icon.png')} />
+    <link rel="icon" type="image/webp" href={imgSrc('/img/favicon.webp')} />
+    <link rel="apple-touch-icon" href={imgSrc('/img/apple-touch-icon.png')} />
     <meta name="theme-color" content="#0b0b0a" />
-    <link rel="sitemap" href="/sitemap.xml" />
+    <link rel="sitemap" href={url('/sitemap.xml')} />
     <noscript>
       <style>
         .reveal {

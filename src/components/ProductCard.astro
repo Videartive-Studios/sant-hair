@@ -2,7 +2,8 @@
 import Icon from './Icon.astro';
 import type { Product } from '@/data/catalog';
 import { SITE } from '@/data/site';
-import { img } from '@/lib/assets';
+import { imgSrc } from '@/lib/assets';
+import { url } from '@/lib/url';
 
 interface Props {
   product: Product;
@@ -34,7 +35,7 @@ const discount = product.compareAtPrice
       <Icon name="heart" size={17} />
     </button>
     <img
-      src={img(product.image)}
+      src={imgSrc(product.image)}
       alt={`${product.name} Sant Hair+ ${product.size}`}
       width="520"
       height="520"
@@ -45,7 +46,7 @@ const discount = product.compareAtPrice
 
   <div class="product-card__body">
     <h3 class="product-card__title">
-      <a href={`/tienda/${product.slug}`}>{product.name}</a>
+      <a href={url(`/tienda/${product.slug}`)}>{product.name}</a>
     </h3>
     <p class="product-card__size">{product.size}</p>
     <p class="product-card__price">

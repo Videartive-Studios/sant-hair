@@ -1,9 +1,12 @@
 ---
 import Icon from './Icon.astro';
 import { SITE } from '@/data/site';
-import { img } from '@/lib/assets';
+import { imgSrc } from '@/lib/assets';
+import { path, url } from '@/lib/url';
 
-const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+// La ruta actual se compara sin el prefijo del sitio: en la vista previa de
+// GitHub Pages la URL trae `/sant-hair/pr-12/` delante.
+const pathname = path(Astro.url.pathname).replace(/\/$/, '') || '/';
 
 const links = [
   { label: 'Inicio', href: '/' },
@@ -30,9 +33,9 @@ const isActive = (href: string) =>
         <Icon name="menu" size={22} />
       </button>
 
-      <a class="header__logo" href="/" aria-label={`${SITE.brand} — inicio`}>
+      <a class="header__logo" href={url('/')} aria-label={`${SITE.brand} — inicio`}>
         <img
-          src={img('/img/logo-horizontal-ink.webp')}
+          src={imgSrc('/img/logo-horizontal-ink.webp')}
           alt={SITE.brandFull}
           width="630"
           height="173"
@@ -45,7 +48,7 @@ const isActive = (href: string) =>
         links.map((link) => (
           <a
             class="nav__link"
-            href={link.href}
+            href={url(link.href)}
             aria-current={isActive(link.href) ? 'page': undefined}
           >
             {link.label}
@@ -55,10 +58,10 @@ const isActive = (href: string) =>
     </nav>
 
     <div class="header__actions">
-      <a class="icon-btn" href="/tienda" aria-label="Ver la tienda">
+      <a class="icon-btn" href={url('/tienda')} aria-label="Ver la tienda">
         <Icon name="search" size={20} />
       </a>
-      <a class="icon-btn icon-btn--user" href="/contacto" aria-label="Contacto y asesoría">
+      <a class="icon-btn icon-btn--user" href={url('/contacto')} aria-label="Contacto y asesoría">
         <Icon name="user" size={20} />
       </a>
       <button class="icon-btn" type="button" data-cart-open aria-label="Abrir carrito">
@@ -84,7 +87,7 @@ const isActive = (href: string) =>
       links.map((link, index) => (
         <a
           class="mobile-menu__link"
-          href={link.href}
+          href={url(link.href)}
           aria-current={isActive(link.href) ? 'page': undefined}
         >
           <span>0{index + 1}</span>

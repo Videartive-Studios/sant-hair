@@ -26,11 +26,16 @@ export function escapeHtml(value: unknown): string {
  * Valida que una ruta de imagen sea interna y termine en un formato de
  * imagen conocido. Evita que un `javascript:` o una URL externa entre en el
  * atributo `src`.
+ *
+ * En la vista previa de GitHub Pages las imagenes llevan delante el prefijo
+ * del sitio (`/sant-hair/pr-12/img/...`), asi que se acepta tambien.
  */
 export function safeImageSrc(value: unknown): string {
   const src = String(value ?? '').trim();
-  if (!src.startsWith('/img/')) return '';
-  if (!/\.(webp|png|jpe?g|avif|gif|svg)$/i.test(src)) return '';
+  const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+  const interna = base && src.startsWith(`${base}/img/`) ? src.slice(base.length) : src;
+  if (!interna.startsWith('/img/')) return '';
+  if (!/\.(webp|png|jpe?g|avif|gif|svg)$/i.test(interna)) return '';
   return escapeHtml(src);
 }
 
