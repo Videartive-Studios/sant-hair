@@ -1,0 +1,131 @@
+# ---------------------------------------------------------------
+# Vista previa de cada PR en GitHub Pages
+#
+# GitHub Pages solo sirve archivos estaticos, asi que la vista previa
+# se compila en modo `static` (scripts/build-preview.mjs). El sitio real
+# sigue saliendo de Netlify con su propio build en modo `server`: esta
+# vista previa no lo toca.
+#
+# La rama `gh-pages` guarda todas las vistas previas:
+#
+#   /            -> la version de `main`
+#   /pr-42/      -> la vista previa del PR 42
+#
+# Cada carpeta se construye con su propio prefijo de rutas, de modo que
+# los enlaces y las imagenes funcionan dentro de su carpeta.
+# ---------------------------------------------------------------
+
+name: Vista previa
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Solo hace falta escribir en la rama `gh-pages`.
+permissions:
+  contents: write
+  pages: write
+
+# Un push por PR: se cancela el anterior si llega uno nuevo.
+concurrency:
+  group: vista-previa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: Compilar y publicar
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Calcular la carpeta de la vista previa
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "carpeta=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+            echo "base=/sant-hair/pr-${{ github.event.pull_request.number }}/" >> "$GITHUB_OUTPUT"
+          else
+            echo "carpeta=" >> "$GITHUB_OUTPUT"
+            echo "base=/sant-hair/" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compilar la vista previa
+        env:
+          PREVIEW_PATH: ${{ steps.meta.outputs.base }}
+          BASE_PATH: ${{ steps.meta.outputs.base }}
+          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}${{ steps.meta.outputs.base }}
+        run: node scripts/build-preview.mjs
+
+      - name: Publicar en la rama gh-pages
+        env:
+          CARPETA: ${{ steps.meta.outputs.carpeta }}
+        run: |
+          set -euo pipefail
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          # Se trabaja sobre la rama `gh-pages`, que guarda todas las vistas
+          # previas. Si todavia no existe, se crea desde cero.
+          git fetch origin gh-pages:gh-pages --depth=1 || true
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            git checkout gh-pages
+          else
+            git checkout --orphan gh-pages
+            git rm -rf --cached . >/dev/null 2>&1 || true
+            rm -rf ./* ./.??* 2>/dev/null || true
+          fi
+
+          if [ -n "$CARPETA" ]; then
+            # Vista previa de un PR: solo se reemplaza su carpeta.
+            rm -rf "$CARPETA"
+            mkdir -p "$CARPETA"
+            cp -R dist/. "$CARPETA/"
+          else
+            # Version de `main`: va en la raiz. Se conserva lo que haya en las
+            # carpetas de las vistas previas.
+            find . -maxdepth 1 -mindepth 1 \
+              ! -name '.git' ! -name 'pr-*' \
+              -exec rm -rf {} +
+            cp -R dist/. ./
+          fi
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No hay cambios que publicar.'
+            exit 0
+          fi
+          git commit -m "Vista previa: ${CARPETA:-main} (${GITHUB_SHA::8})"
+          git push origin gh-pages
+
+      - name: Habilitar GitHub Pages
+        continue-on-error: true
+        run: |
+          curl -sS -X POST \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages" \
+            -d '{"source":{"branch":"gh-pages","path":"/"}}' || true
+
+      - name: Comentar la vista previa en el PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --body "Vista previa: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ steps.meta.outputs.carpeta }}/" \
+            --edit-last
