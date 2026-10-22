@@ -24,10 +24,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Solo hace falta escribir en la rama `gh-pages`.
+# Solo hace falta escribir en la rama `gh-pages` y comentar en el PR.
 permissions:
   contents: write
   pages: write
+  pull-requests: write
 
 # Un push por PR: se cancela el anterior si llega uno nuevo.
 concurrency:
@@ -67,7 +68,7 @@ jobs:
         env:
           PREVIEW_PATH: ${{ steps.meta.outputs.base }}
           BASE_PATH: ${{ steps.meta.outputs.base }}
-          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}${{ steps.meta.outputs.base }}
+          SITE_URL: https://${{ github.repository_owner }}.github.io${{ steps.meta.outputs.base }}
         run: node scripts/build-preview.mjs
 
       - name: Publicar en la rama gh-pages
