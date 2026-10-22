@@ -1,0 +1,1 @@
+var e=`Esta es una vista previa del sitio: el formulario no está activo. Escríbenos por WhatsApp o correo.`;export{e as t};
