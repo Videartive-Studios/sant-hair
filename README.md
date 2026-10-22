@@ -16,15 +16,16 @@ El diseño replica la estructura de la tienda de referencia (Purelis Skincare) a
 3. [Base de datos (Netlify Blobs)](#3-base-de-datos-netlify-blobs)
 4. [Panel de administración](#4-panel-de-administración)
 5. [Despliegue en Netlify](#5-despliegue-en-netlify)
-6. [Variables de entorno](#6-variables-de-entorno)
-7. [Editar contenido](#7-editar-contenido)
-8. [Control de calidad](#8-control-de-calidad)
-9. [Pagos y descuentos](#9-pagos-y-descuentos)
-10. [SEO](#10-seo)
-11. [Seguridad](#11-seguridad)
-12. [Imágenes](#12-imágenes)
-13. [Pendientes antes de publicar](#13-pendientes-antes-de-publicar)
-14. [Registro de cambios](#14-registro-de-cambios)
+6. [Vista previa por PR (GitHub Pages)](#6-vista-previa-por-pr-github-pages)
+7. [Variables de entorno](#7-variables-de-entorno)
+8. [Editar contenido](#8-editar-contenido)
+9. [Control de calidad](#9-control-de-calidad)
+10. [Pagos y descuentos](#10-pagos-y-descuentos)
+11. [SEO](#11-seo)
+12. [Seguridad](#12-seguridad)
+13. [Imágenes](#13-imágenes)
+14. [Pendientes antes de publicar](#14-pendientes-antes-de-publicar)
+15. [Registro de cambios](#15-registro-de-cambios)
 
 ---
 
@@ -42,6 +43,7 @@ Otros comandos:
 | --- | --- |
 | `npm run dev` | Servidor de desarrollo (Astro + emulación de Netlify) |
 | `npm run build` | Compila para producción (genera `dist/`) |
+| `npm run build:preview` | Compila la vista previa estática para GitHub Pages |
 | `npm run preview` | Levanta el build de producción con `netlify dev` |
 | `npm run check` | Verificación de tipos de Astro (0 errores, 0 avisos, 0 hints) |
 | `npm run lint:copy` | Revisa el copy en busca de texto corrupto |
@@ -71,10 +73,13 @@ public_html/
 ├── netlify.toml            Build, publish, headers, CSP y redirecciones
 ├── package.json            Dependencias y comandos
 ├── tsconfig.json           Tipos de Astro y rutas del alias "@/"
+├── .github/workflows/
+│   └── preview.yml         Vista previa de cada PR en GitHub Pages
 ├── public/
 │   ├── img/                Imágenes optimizadas (WebP, fondo recortado)
+│   ├── .nojekyll           Evita que Jekyll ignore la carpeta _astro/
 │   └── robots.txt
-├── scripts/                Utilidades: imágenes y control de calidad
+├── scripts/                Utilidades: imágenes, vista previa y control de calidad
 └── src/
     ├── components/         Header, Footer, TopBar, ProductCard, CartDrawer,
     │                       Icon, Marquee, JsonLd
@@ -84,12 +89,16 @@ public_html/
     │   └── repo.ts         Consultas: productos, pedidos, suscriptores, mensajes
     ├── layouts/BaseLayout.astro
     ├── lib/
+    │   ├── assets.ts       Versión de las imágenes (rompe la caché del CDN)
     │   ├── auth.ts         Autenticación del panel de administración
     │   ├── escape.ts       Escapado de HTML para el contenido del navegador
     │   ├── order-token.ts  Tokens firmados de acceso a un pedido
+    │   ├── prerender.ts    Marca las rutas que necesitan el servidor
+    │   ├── preview.ts      Detecta la vista previa de GitHub Pages
     │   ├── promo.ts        Cupones de descuento
     │   ├── rate-limit.ts   Limitador de peticiones por IP
-    │   └── seo.ts          Datos estructurados (schema.org)
+    │   ├── seo.ts          Datos estructurados (schema.org)
+    │   └── url.ts          Prefijo de rutas del sitio (vacío en producción)
     ├── pages/
     │   ├── index.astro                 Portada
     │   ├── tienda/                     Catálogo con filtros y ficha de producto
@@ -118,6 +127,9 @@ public_html/
 | `src/lib/order-token.ts` | Firma y verifica los tokens de acceso a un pedido |
 | `src/lib/rate-limit.ts` | Limita las peticiones por IP y ámbito |
 | `src/lib/escape.ts` | Escapa el contenido que viene del navegador |
+| `src/lib/url.ts` | Añade el prefijo de rutas del sitio (vacío en producción) |
+| `src/lib/prerender.ts` | Marca las rutas que necesitan el servidor |
+| `src/lib/preview.ts` | Detecta la vista previa de GitHub Pages |
 
 ---
 
@@ -230,7 +242,82 @@ y de `http` al dominio canónico `https://santhair.com`.
 
 ---
 
-## 6. Variables de entorno
+## 6. Vista previa por PR (GitHub Pages)
+
+Cada pull request publica una **vista previa estática** del sitio en GitHub
+Pages, para poder revisar los cambios sin desplegar en producción.
+
+```
+https://videartive-studios.github.io/sant-hair/pr-42/
+```
+
+El sitio real **no** se ve afectado: sigue saliendo de Netlify con su build en
+modo `server`. La vista previa es una compilación aparte, en modo `static`.
+
+### Por qué tiene que ser estática
+
+GitHub Pages solo sirve archivos: no ejecuta funciones ni API routes. El
+proyecto usa renderizado en servidor (catálogo desde Netlify Blobs, checkout,
+panel de administración, formularios), así que para la vista previa se compila
+en modo estático y el catálogo sale de la semilla del código
+(`src/data/catalog.ts`).
+
+En la vista previa **no funcionan** el checkout, los formularios ni el panel:
+no hay backend. En lugar de dejar un error técnico, los formularios avisan de
+que es una vista previa (`src/lib/preview.ts`).
+
+### Cómo funciona
+
+1. `.github/workflows/preview.yml` se dispara en cada PR (y en cada push a
+   `main`).
+2. `scripts/build-preview.mjs` compila el sitio en modo estático con el
+   prefijo de rutas correspondiente (`/sant-hair/pr-42/`).
+3. El resultado se publica en la rama `gh-pages`:
+
+   | Carpeta | Contenido |
+   | --- | --- |
+   | `/` | La versión de `main` |
+   | `/pr-42/` | La vista previa del PR 42 |
+
+4. El workflow comenta la URL en el PR.
+
+Como cada carpeta se compila con **su propio prefijo de rutas**, los enlaces y
+las imágenes funcionan dentro de la carpeta. Ese prefijo lo aporta
+`src/lib/url.ts` (`url()` y `path()`), que devuelve la ruta tal cual en
+producción (prefijo vacío) y solo le añade el prefijo en la vista previa.
+
+### Preparación (una sola vez)
+
+GitHub Pages tiene que estar apuntando a la rama `gh-pages`:
+
+**Settings → Pages → Source → Deploy from a branch → `gh-pages` / `(root)`**
+
+El workflow intenta habilitarlo solo por la API, pero si GitHub no lo acepta
+hay que hacerlo a mano desde los ajustes del repositorio.
+
+> `public/.nojekyll` es imprescindible: sin él, Jekyll ignora la carpeta
+> `_astro/` y las hojas de estilo no cargan.
+
+### Compilar la vista previa en local
+
+```bash
+npm run build:preview
+```
+
+Variables opcionales: `PREVIEW_PATH` (carpeta), `BASE_PATH` (prefijo de
+rutas) y `SITE_URL` (URL pública).
+
+### Qué NO cambia en producción
+
+- El `canonical`, la imagen social y el sitemap siguen apuntando a
+  `https://santhair.com`. La vista previa es un demo: no debe indexarse ni
+  competir con el sitio real, por lo que además se marca con `noindex`.
+- El build de producción sigue siendo byte a byte el mismo: el prefijo de
+  rutas está vacío y `url()` devuelve las rutas sin tocar.
+
+---
+
+## 7. Variables de entorno
 
 | Variable | ¿Obligatoria? | Para qué sirve |
 | --- | --- | --- |
@@ -243,7 +330,7 @@ Copia `.env.example` a `.env` si quieres documentar las tuyas.
 
 ---
 
-## 7. Editar contenido
+## 8. Editar contenido
 
 | Qué | Dónde |
 | --- | --- |
@@ -260,7 +347,7 @@ modificar los existentes, usa el panel `/admin` (o borra la clave
 
 ---
 
-## 8. Control de calidad
+## 9. Control de calidad
 
 El proyecto incluye scripts de comprobacion (Python) que conviene ejecutar
 despues de editar el codigo:
@@ -295,7 +382,7 @@ despues de editar el codigo:
 
 ---
 
-## 9. Pagos y descuentos
+## 10. Pagos y descuentos
 
 La tienda **no procesa pagos**: el checkout registra el pedido en la base de
 datos y el cliente elige entre contra entrega, transferencia o coordinarlo por
@@ -322,7 +409,7 @@ aplica de verdad**: se puede introducir en el carrito y en el checkout.
 
 ---
 
-## 10. SEO
+## 11. SEO
 
 | Qué | Dónde |
 | --- | --- |
@@ -363,7 +450,7 @@ aplica de verdad**: se puede introducir en el carrito y en el checkout.
 
 ---
 
-## 11. Seguridad
+## 12. Seguridad
 
 ### Resumen
 
@@ -406,7 +493,7 @@ que Vite inyecta los estilos en línea y no se pueden calcular sus hashes.
 
 ---
 
-## 12. Imágenes
+## 13. Imágenes
 
 Las imágenes se generan desde `D:\Diana Santamaria\Sant Hair\Logo\Finales`
 y desde `D:\Diana Santamaria\Trío SANT HAIR+ en negro y dorado.png`:
@@ -462,7 +549,7 @@ El resultado queda en `public/img/`:
 
 ---
 
-## 13. Pendientes antes de publicar
+## 14. Pendientes antes de publicar
 
 - [ ] Importar el repositorio en Netlify y desplegar.
 - [ ] Configurar `ADMIN_PASSWORD`, `ADMIN_SECRET` y `ORDER_TOKEN_SECRET` en Netlify.
@@ -477,7 +564,7 @@ El resultado queda en `public/img/`:
 
 ---
 
-## 14. Registro de cambios
+## 15. Registro de cambios
 
 ### Revisión completa y corrección (8 commits)
 
