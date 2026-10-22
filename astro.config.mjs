@@ -19,6 +19,9 @@ const vistaPrevia = process.env.PREVIEW_BUILD === '1';
 
 // https://astro build/config
 export default defineConfig({
+  // `site` describe donde vive esta compilacion. El canonical y la imagen
+  // social no lo usan: en la vista previa tienen que seguir apuntando al
+  // sitio real (ver src/layouts/BaseLayout.astro).
   site: process.env.SITE_URL ?? 'https://santhair.com',
   // GitHub Pages sirve el proyecto en `/sant-hair/` y cada PR en su propia
   // carpeta (`/sant-hair/pr-12/`), de modo que la base cambia por build.

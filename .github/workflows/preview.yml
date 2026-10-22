@@ -79,18 +79,27 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
+          # `dist/` y `node_modules/` no se publican nunca. Se excluyen con
+          # `.git/info/exclude` en vez de con `.gitignore`, para no dejar un
+          # `.gitignore` en la rama `gh-pages` (se publicaria como archivo).
+          printf 'dist/\nnode_modules/\n' >> .git/info/exclude
+
           # Se trabaja sobre la rama `gh-pages`, que guarda todas las vistas
           # previas. Si todavia no existe, se crea desde cero.
-          git fetch origin gh-pages:gh-pages --depth=1 || true
-          if git show-ref --verify --quiet refs/heads/gh-pages; then
-            git checkout gh-pages
+          git fetch origin gh-pages --depth=1 || true
+          if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+            git checkout -B gh-pages origin/gh-pages
           else
             git checkout --orphan gh-pages
             git rm -rf --cached . >/dev/null 2>&1 || true
-            rm -rf ./* ./.??* 2>/dev/null || true
+            # Se vacia el arbol de trabajo. Ni `.git` ni las carpetas de la
+            # compilacion se tocan.
+            find . -maxdepth 1 -mindepth 1 \
+              ! -name '.git' ! -name 'dist' ! -name 'node_modules' \
+              -exec rm -rf {} +
           fi
 
-          if [ -n "$CARPETA" ]; then
+          if [ -n "${CARPETA:-}" ]; then
             # Vista previa de un PR: solo se reemplaza su carpeta.
             rm -rf "$CARPETA"
             mkdir -p "$CARPETA"
@@ -99,7 +108,7 @@ jobs:
             # Version de `main`: va en la raiz. Se conserva lo que haya en las
             # carpetas de las vistas previas.
             find . -maxdepth 1 -mindepth 1 \
-              ! -name '.git' ! -name 'pr-*' \
+              ! -name '.git' ! -name 'dist' ! -name 'node_modules' ! -name 'pr-*' \
               -exec rm -rf {} +
             cp -R dist/. ./
           fi
@@ -109,7 +118,7 @@ jobs:
             echo 'No hay cambios que publicar.'
             exit 0
           fi
-          git commit -m "Vista previa: ${CARPETA:-main} (${GITHUB_SHA::8})"
+          git commit -m "Vista previa: ${CARPETA:-main} (${GITHUB_SHA:0:8})"
           git push origin gh-pages
 
       - name: Habilitar GitHub Pages
