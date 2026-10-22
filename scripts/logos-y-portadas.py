@@ -80,7 +80,7 @@ MEDIDA = (1200, 750)
 MARGEN = 0.86  # proporcion maxima que ocupa el producto
 
 PORTADAS = [
-    ("portada-lavar.webp", "hero-fraccos.webp"),
+    ("portada-lavar.webp", "hero-frascos.webp"),
     ("portada-sulfatos.webp", "producto-shampoo.webp"),
     ("portada-mascarilla.webp", "producto-mascarilla.webp"),
 ]

@@ -9,6 +9,10 @@ SRC = r"D:\Diana Santamaria\Sant Hair\Logo\Finales"
 OUT = r"D:\Diana Santamaria\Sant Hair\Web\public_html\public\img"
 os.makedirs(OUT, exist_ok=True)
 
+# Ilustracion original de la linea completa, ya recortada con canal alfa y
+# con la sombra de base horneada. Sustituye a los mockups oscuros.
+ORIGEN_TRIO = r"D:\Diana Santamaria\Trío SANT HAIR+ en negro y dorado.png"
+
 
 def save(im, name, quality=82, max_w=None):
     if max_w and im.width > max_w:
@@ -34,16 +38,14 @@ crops = {
 for name, box in crops.items():
     save(light.crop(box), name, quality=86)
 
-print("== Mockup negro (dramatico) ==")
-black = Image.open(os.path.join(SRC, "Mockupo frascos negros.png")).convert("RGB")
-print("  base:", black.size)
-save(black, "mockup-negro.webp", quality=84, max_w=1400)
-
-black2 = Image.open(os.path.join(SRC, "Mockup Sant Hair 2.png")).convert("RGB")
-save(black2, "mockup-negro-hoja.webp", quality=84, max_w=1400)
-
-black3 = Image.open(os.path.join(SRC, "Mockup frascos negros dorados.png")).convert("RGB")
-save(black3, "mockup-negro-2.webp", quality=84, max_w=1400)
+print("== Mockups oscuros (linea completa sobre negro) ==")
+trio = Image.open(ORIGEN_TRIO).convert("RGBA")
+print("  base:", trio.size)
+# La ilustracion ya viene con transparencia y su propia sombra, asi que solo
+# se convierte a WebP. Los tres archivos comparten la misma imagen porque
+# ocurre en tres secciones distintas de color oscuro.
+for nombre in ("mockup-negro.webp", "mockup-negro-2.webp", "mockup-negro-hoja.webp"):
+    save(trio, nombre, quality=88, max_w=1400)
 
 light_full = Image.open(os.path.join(SRC, "Mockup frascos claro dorado.webp")).convert("RGB")
 # Recorte vertical: el mockup original tiene mucho aire arriba y abajo.

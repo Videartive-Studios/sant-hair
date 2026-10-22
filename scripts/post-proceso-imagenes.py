@@ -5,11 +5,11 @@ Post-procesado de imagenes de Sant Hair+.
    suave, asi que se modela por columna (interpolando el borde superior con el
    inferior) y se eliminan los pixeles cercanos a ese modelo. El negro de los
    envases y el dorado de las tapas quedan intactos.
-2. Genera una version en tinta del logo horizontal para la cabecera clara.
+2. Copia el logo horizontal dorado como logo de la cabecera.
 """
 import os
 
-from PIL import Image, ImageEnhance, ImageFilter
+from PIL import Image, ImageFilter
 
 SRC = r"D:\Diana Santamaria\Sant Hair\Logo\Finales"
 OUT = r"D:\Diana Santamaria\Sant Hair\Web\public_html\public\img"
@@ -97,37 +97,15 @@ cut.save(path, "WEBP", quality=90, method=6)
 print(f"  {'mascarilla-detalle.webp':36} {cut.size}  {os.path.getsize(path) // 1024} KB")
 
 # ----------------------------------------------------------------------
-print("== Logo en tinta (cabecera clara) ==")
+print("== Logo de cabecera ==")
+# El logo de la cabecera es el dorado de marca (Logo-web.webp), no una
+# version en tinta: sobre el fondo crema de la cabecera el dorado es el
+# color de la marca. La version en tinta se calcula sobre la marcha en
+# generar-imagenes-social.py, para la tarjeta de redes.
 logo = Image.open(os.path.join(OUT, "logo-horizontal.webp")).convert("RGBA")
-w, h = logo.size
-pixels = logo.load()
-
-top_c = (24, 22, 18)
-bottom_c = (78, 71, 57)
-
-out = Image.new("RGBA", (w, h))
-dst = out.load()
-for y in range(h):
-    t = y / max(1, h - 1)
-    color = tuple(top_c[i] + (bottom_c[i] - top_c[i]) * t for i in range(3))
-    for x in range(w):
-        r, g, b, a = pixels[x, y]
-        if a == 0:
-            dst[x, y] = (0, 0, 0, 0)
-            continue
-        lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-        factor = 0.6 + 0.6 * lum
-        dst[x, y] = (
-            min(255, round(color[0] * factor)),
-            min(255, round(color[1] * factor)),
-            min(255, round(color[2] * factor)),
-            a,
-        )
-
-out = ImageEnhance.Contrast(out).enhance(1.06)
 path = os.path.join(OUT, "logo-horizontal-ink.webp")
-out.save(path, "WEBP", quality=92, method=6)
-print(f"  logo-horizontal-ink.webp  {out.size}  {os.path.getsize(path) // 1024} KB")
+logo.save(path, "WEBP", quality=92, method=6)
+print(f"  logo-horizontal-ink.webp  {logo.size}  {os.path.getsize(path) // 1024} KB")
 
 print("OK")
 

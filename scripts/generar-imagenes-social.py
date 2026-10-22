@@ -11,7 +11,7 @@ Uso:  python scripts/generar-imagenes-social.py
 """
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
 IMG = ROOT / "public" / "img"
@@ -26,6 +26,41 @@ def _fit(im: Image.Image, box: int) -> Image.Image:
     copia = im.copy()
     copia.thumbnail((box, box), Image.LANCZOS)
     return copia
+
+
+def logo_en_tinta(logo: Image.Image) -> Image.Image:
+    """Convierte el logo dorado en una version de tinta oscura.
+
+    La cabecera usa el logo dorado de marca, pero sobre el fondo crema de la
+    tarjeta de redes el dorado no tiene contraste: ahi se usa la version en
+    tinta, que se calcula aqui a partir del original.
+    """
+    w, h = logo.size
+    pixels = logo.load()
+
+    top_c = (24, 22, 18)
+    bottom_c = (78, 71, 57)
+
+    out = Image.new("RGBA", (w, h))
+    dst = out.load()
+    for y in range(h):
+        t = y / max(1, h - 1)
+        color = tuple(top_c[i] + (bottom_c[i] - top_c[i]) * t for i in range(3))
+        for x in range(w):
+            r, g, b, a = pixels[x, y]
+            if a == 0:
+                dst[x, y] = (0, 0, 0, 0)
+                continue
+            lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+            factor = 0.6 + 0.6 * lum
+            dst[x, y] = (
+                min(255, round(color[0] * factor)),
+                min(255, round(color[1] * factor)),
+                min(255, round(color[2] * factor)),
+                a,
+            )
+
+    return ImageEnhance.Contrast(out).enhance(1.06)
 
 
 def generar_og(destino: Path) -> None:
@@ -47,8 +82,8 @@ def generar_og(destino: Path) -> None:
     # Marco dorado interior.
     dibujo.rectangle([28, 28, W - 29, H - 29], outline=ORO, width=2)
 
-    # Logotipo centrado arriba.
-    logo = Image.open(IMG / "logo-horizontal-ink.webp").convert("RGBA")
+    # Logotipo centrado arriba, en tinta para que contraste con el crema.
+    logo = logo_en_tinta(Image.open(IMG / "logo-horizontal.webp").convert("RGBA"))
     logo = _fit(logo, 420)
     lienzo.paste(logo, ((W - logo.width) // 2, 92), logo)
 
