@@ -12,14 +12,15 @@
 #   /pr-42/      -> la vista previa del PR 42
 #
 # Cada carpeta se construye con su propio prefijo de rutas, de modo que
-# los enlaces y las imagenes funcionan dentro de su carpeta.
+# los enlaces y las imagenes funcionan dentro de su carpeta. Cuando el PR
+# se cierra, su carpeta se retira.
 # ---------------------------------------------------------------
 
 name: Vista previa
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, closed]
   push:
     branches: [main]
   workflow_dispatch:
@@ -65,6 +66,7 @@ jobs:
           fi
 
       - name: Compilar la vista previa
+        if: github.event.action != 'closed'
         env:
           PREVIEW_PATH: ${{ steps.meta.outputs.base }}
           BASE_PATH: ${{ steps.meta.outputs.base }}
@@ -74,6 +76,7 @@ jobs:
       - name: Publicar en la rama gh-pages
         env:
           CARPETA: ${{ steps.meta.outputs.carpeta }}
+          CERRADO: ${{ github.event.action == 'closed' }}
         run: |
           set -euo pipefail
 
@@ -102,7 +105,10 @@ jobs:
               -exec rm -rf {} +
           fi
 
-          if [ -n "${CARPETA:-}" ]; then
+          if [ "$CERRADO" = "true" ]; then
+            # El PR se ha cerrado: se retira su vista previa.
+            rm -rf "${CARPETA:-}"
+          elif [ -n "${CARPETA:-}" ]; then
             # Vista previa de un PR: solo se reemplaza su carpeta.
             rm -rf "$CARPETA"
             mkdir -p "$CARPETA"
@@ -125,6 +131,7 @@ jobs:
           git push origin gh-pages
 
       - name: Habilitar GitHub Pages
+        if: github.event.action != 'closed'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -135,7 +142,7 @@ jobs:
           fi
 
       - name: Comentar la vista previa en el PR
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.event.action != 'closed'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

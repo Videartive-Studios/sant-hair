@@ -279,7 +279,8 @@ que es una vista previa (`src/lib/preview.ts`).
    | `/` | La versión de `main` |
    | `/pr-42/` | La vista previa del PR 42 |
 
-4. El workflow comenta la URL en el PR.
+4. El workflow comenta la URL en el PR. Cuando el PR se cierra, su carpeta se
+   retira de la rama `gh-pages`.
 
 Como cada carpeta se compila con **su propio prefijo de rutas**, los enlaces y
 las imágenes funcionan dentro de la carpeta. Ese prefijo lo aporta
