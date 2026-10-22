@@ -1,0 +1,1 @@
+function e(e){return String(e??``).replace(/[&<>"']/g,e=>({"&":`&amp;`,"<":`&lt;`,">":`&gt;`,'"':`&quot;`,"'":`&#39;`})[e])}function t(t){let n=String(t??``).trim(),r=`/sant-hair/pr-1/`.replace(/\/+$/,``),i=r&&n.startsWith(`${r}/img/`)?n.slice(r.length):n;return!i.startsWith(`/img/`)||!/\.(webp|png|jpe?g|avif|gif|svg)$/i.test(i)?``:e(n)}export{t as n,e as t};
