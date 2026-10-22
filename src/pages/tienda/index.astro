@@ -4,6 +4,8 @@ import ProductCard from '@/components/ProductCard.astro';
 import Icon from '@/components/Icon.astro';
 import { getProductsByCategory, getCategories } from '@/db/repo';
 import { breadcrumbSchema, itemListSchema } from '@/lib/seo';
+import { SITE } from '@/data/site';
+import { url } from '@/lib/url';
 
 const categoria = Astro.url.searchParams.get('categoria') ?? 'todos';
 const orden = Astro.url.searchParams.get('orden') ?? 'destacados';
@@ -25,11 +27,11 @@ const description = activeCategory
   : 'Todo el catálogo de Sant Hair+: shampoos, acondicionadores y mascarillas capilares de formulación limpia.';
 
 const buildUrl = (params: Record<string, string | undefined>) => {
-  const url = new URL('/tienda', Astro.url);
+  const destino = new URL(url('/tienda'), Astro.url);
   Object.entries(params).forEach(([key, value]) => {
-    if (value) url.searchParams.set(key, value);
+    if (value) destino.searchParams.set(key, value);
   });
-  return url.pathname + url.search;
+  return destino.pathname + destino.search;
 };
 
 const breadcrumbs = [
@@ -41,9 +43,11 @@ const breadcrumbs = [
 
 // El canonical conserva el parametro de categoria: el sitemap anuncia
 // esas URLs y deben apuntar a si mismas, no a /tienda.
+// Apunta al sitio real: la vista previa de GitHub Pages no debe canibalizar
+// las URLs del sitio que esta en producción.
 const canonical = new URL(
   activeCategory ? `/tienda?categoria=${activeCategory.slug}` : '/tienda',
-  Astro.site,
+  SITE.url,
 ).toString();
 ---
 
@@ -55,7 +59,7 @@ const canonical = new URL(
 >
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
-      <a href="/">Inicio</a>
+      <a href={url('/')}>Inicio</a>
       <span>/</span>
       <span aria-current="page">{title}</span>
     </nav>
@@ -69,7 +73,7 @@ const canonical = new URL(
           <h1 class="display-2">{title}</h1>
           {activeCategory && <p class="lede">{activeCategory.description}</p>}
         </div>
-        <a class="btn btn--light btn--sm" href="/tienda">Ver la tienda</a>
+        <a class="btn btn--light btn--sm" href={url('/tienda')}>Ver la tienda</a>
       </div>
 
       <div class="shop-layout">
@@ -131,7 +135,7 @@ const canonical = new URL(
             <p class="shop-toolbar__count">
               {sorted.length} {sorted.length === 1 ? 'producto' : 'productos'}
             </p>
-            <a class="link-underline" href="/carrito">Ver carrito</a>
+            <a class="link-underline" href={url('/carrito')}>Ver carrito</a>
           </div>
 
           {
@@ -147,7 +151,7 @@ const canonical = new URL(
                 <p style="color:var(--muted)">
                   Prueba con otra categoría o vuelve al catálogo completo.
                 </p>
-                <a class="btn btn--light" href="/tienda" style="margin-top:1.25rem">
+                <a class="btn btn--light" href={url('/tienda')} style="margin-top:1.25rem">
                   Ver todo el catálogo
                 </a>
               </div>

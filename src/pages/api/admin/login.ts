@@ -7,7 +7,7 @@ import {
 } from '@/lib/auth';
 import { clientKey, rateLimit, resetRateLimit, tooManyRequests } from '@/lib/rate-limit';
 
-export const prerender = false;
+export { prerender } from '@/lib/prerender';
 
 /** Intentos fallidos permitidos antes de bloquear. */
 const LIMITE_LOGIN = 5;

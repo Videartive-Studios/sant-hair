@@ -12,7 +12,7 @@ import { resolvePromo } from '@/lib/promo';
 import { createOrderToken } from '@/lib/order-token';
 import { clientKey, rateLimit, tooManyRequests } from '@/lib/rate-limit';
 
-export const prerender = false;
+export { prerender } from '@/lib/prerender';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const METODOS_PAGO = ['contraentrega', 'transferencia', 'whatsapp'] as const;

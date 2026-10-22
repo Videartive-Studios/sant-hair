@@ -11,7 +11,7 @@ import {
 } from '@/db/repo';
 import { clientKey, rateLimit, tooManyRequests } from '@/lib/rate-limit';
 
-export const prerender = false;
+export { prerender } from '@/lib/prerender';
 
 const STATUSES: OrderStatus[] = [
   'pendiente',

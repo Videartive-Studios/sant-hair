@@ -1,11 +1,29 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { BLOG_POSTS } from '@/data/content';
+import { BLOG_POSTS, type BlogPost } from '@/data/content';
 import { articleSchema, breadcrumbSchema } from '@/lib/seo';
-import { img } from '@/lib/assets';
+import { img, imgSrc } from '@/lib/assets';
+import { url } from '@/lib/url';
+
+interface Props {
+  /** El articulo, solo en la vista previa estatica (llega por `props`). */
+  post?: BlogPost;
+}
+
+/**
+ * En el sitio real la ruta se resuelve en el servidor con el slug de la URL.
+ * En la vista previa estatica (GitHub Pages) no hay servidor, asi que Astro
+ * prerenderiza un archivo por articulo y se lo entrega en `props`.
+ */
+export function getStaticPaths() {
+  return BLOG_POSTS.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
 
 const { slug } = Astro.params;
-const post = BLOG_POSTS.find((p) => p.slug === slug);
+const post = Astro.props.post ?? BLOG_POSTS.find((p) => p.slug === slug);
 
 // Un articulo inexistente es un 404 real, no una redireccion a /blog.
 if (!post) {
@@ -37,9 +55,9 @@ const breadcrumbs = [
 >
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
-      <a href="/">Inicio</a>
+      <a href={url('/')}>Inicio</a>
       <span>/</span>
-      <a href="/blog">Blog</a>
+      <a href={url('/blog')}>Blog</a>
       <span>/</span>
       <span aria-current="page">{post.title}</span>
     </nav>
@@ -62,7 +80,7 @@ const breadcrumbs = [
 
       <div class="ratio-4-3 ratio-4-3--contain" style="margin-bottom:2.5rem">
         <img
-          src={img(post.cover)}
+          src={imgSrc(post.cover)}
           alt={post.title}
           width="1200"
           height="750"
@@ -87,7 +105,7 @@ const breadcrumbs = [
             Descubre los tres productos de la línea Sant Hair+.
           </p>
         </div>
-        <a class="btn" href="/tienda">Ir a la tienda</a>
+        <a class="btn" href={url('/tienda')}>Ir a la tienda</a>
       </div>
     </div>
   </article>
@@ -101,14 +119,14 @@ const breadcrumbs = [
               <p class="eyebrow">Sigue leyendo</p>
               <h2 class="section-head__title">Otros artículos</h2>
             </div>
-            <a class="link-underline" href="/blog">Ver todo</a>
+            <a class="link-underline" href={url('/blog')}>Ver todo</a>
           </div>
           <div class="post-grid">
             {others.map((item) => (
               <article class="post-card">
-                <a class="post-card__media" href={`/blog/${item.slug}`}>
+                <a class="post-card__media" href={url(`/blog/${item.slug}`)}>
                   <img
-                    src={img(item.cover)}
+                    src={imgSrc(item.cover)}
                     alt={item.title}
                     width="1200"
                     height="750"
@@ -120,7 +138,7 @@ const breadcrumbs = [
                   <span>{formatDate(item.date)}</span>
                 </div>
                 <h3 class="post-card__title">
-                  <a href={`/blog/${item.slug}`}>{item.title}</a>
+                  <a href={url(`/blog/${item.slug}`)}>{item.title}</a>
                 </h3>
                 <p style="color:var(--text-2);font-size:.95rem">{item.excerpt}</p>
               </article>

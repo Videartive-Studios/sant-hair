@@ -4,6 +4,7 @@ import Icon from '@/components/Icon.astro';
 import { getOrder } from '@/db/repo';
 import { SITE } from '@/data/site';
 import { verifyOrderToken } from '@/lib/order-token';
+import { url } from '@/lib/url';
 
 const orderId = Astro.url.searchParams.get('id') ?? '';
 const token = Astro.url.searchParams.get('token') ?? '';
@@ -123,7 +124,7 @@ const whatsappHref = order
           <a class="btn btn--gold" href={whatsappHref} target="_blank" rel="noopener">
             <Icon name="whatsapp" size={17} /> Coordinar por WhatsApp
           </a>
-          <a class="btn btn--light" href="/tienda">Seguir comprando</a>
+          <a class="btn btn--light" href={url('/tienda')}>Seguir comprando</a>
         </div>
       </div>
     </div>

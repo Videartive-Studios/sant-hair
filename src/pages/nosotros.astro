@@ -4,7 +4,8 @@ import Icon from '@/components/Icon.astro';
 import { FEATURES } from '@/data/site';
 import { TESTIMONIALS } from '@/data/content';
 import { breadcrumbSchema } from '@/lib/seo';
-import { img } from '@/lib/assets';
+import { imgSrc } from '@/lib/assets';
+import { url } from '@/lib/url';
 
 const breadcrumbs = [
   { name: 'Inicio', href: '/' },
@@ -34,7 +35,7 @@ const breadcrumbs = [
       <div class="hero__media hero__media--logo">
         <div class="hero__glow"></div>
         <img
-          src={img('/img/logo-horizontal.webp')}
+          src={imgSrc('/img/logo-horizontal.webp')}
           alt="Sant Hair+ Línea Capilar"
           width="630"
           height="173"
@@ -49,7 +50,7 @@ const breadcrumbs = [
       <div class="split">
         <div class="figura-fraccos">
           <img
-            src={img('/img/mockup-negro-2.webp')}
+            src={imgSrc('/img/mockup-negro-2.webp')}
             alt="Línea Sant Hair+"
             width="1354"
             height="1161"
@@ -71,8 +72,8 @@ const breadcrumbs = [
             ingrediente y en un producto que se siente bien desde el primer uso.
           </p>
           <div class="cluster" style="gap:.85rem">
-            <a class="btn" href="/tienda">Ver la línea</a>
-            <a class="btn btn--light" href="/blog">Leer el blog</a>
+            <a class="btn" href={url('/tienda')}>Ver la línea</a>
+            <a class="btn btn--light" href={url('/blog')}>Leer el blog</a>
           </div>
         </div>
       </div>
@@ -153,12 +154,12 @@ const breadcrumbs = [
           que cambia el resto del ritual.
         </p>
         <div class="hero__actions">
-          <a class="btn btn--gold" href="/tienda/shampoo-nutritivo-sant-hair">Ver el shampoo</a>
+          <a class="btn btn--gold" href={url('/tienda/shampoo-nutritivo-sant-hair')}>Ver el shampoo</a>
         </div>
       </div>
       <div class="promo__media">
         <img
-          src={img('/img/mockup-negro-hoja.webp')}
+          src={imgSrc('/img/mockup-negro-hoja.webp')}
           alt="Productos Sant Hair+"
           width="1354"
           height="1161"

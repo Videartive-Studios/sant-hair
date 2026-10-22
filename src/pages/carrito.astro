@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { url } from '@/lib/url';
 ---
 
 <BaseLayout
@@ -9,7 +10,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 >
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
-      <a href="/">Inicio</a>
+      <a href={url('/')}>Inicio</a>
       <span>/</span>
       <span aria-current="page">Carrito</span>
     </nav>
@@ -22,7 +23,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           <p class="eyebrow">Tu selección</p>
           <h1 class="display-2">Carrito de compras</h1>
         </div>
-        <a class="btn btn--light btn--sm" href="/tienda">Seguir comprando</a>
+        <a class="btn btn--light btn--sm" href={url('/tienda')}>Seguir comprando</a>
       </div>
 
       <div class="split" style="align-items:start;gap:clamp(2rem,4vw,3rem)">
@@ -44,6 +45,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
+  import { url } from '@/lib/url';
   import {
     getCart,
     cartTotals,
@@ -69,7 +71,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           <p style="color:var(--muted)">
             Todavía no has agregado productos. Te esperamos en la tienda.
           </p>
-          <a class="btn" href="/tienda" style="margin-top:1.5rem">Explorar la tienda</a>
+          <a class="btn" href="${url('/tienda')}" style="margin-top:1.5rem">Explorar la tienda</a>
         </div>`;
       summaryEl.innerHTML = '';
       return;
@@ -79,11 +81,11 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       .map(
         (item) => `
         <div class="cart-line" data-slug="${escapeHtml(item.slug)}" style="background:#fff;border:1px solid var(--line);padding:1.25rem;margin-bottom:.75rem">
-          <a class="cart-line__img" href="/tienda/${encodeURIComponent(item.slug)}">
+          <a class="cart-line__img" href="${url(`/tienda/${encodeURIComponent(item.slug)}`)}">
             <img src="${safeImageSrc(item.image)}" alt="${escapeHtml(item.name)}" width="80" height="80" loading="lazy" />
           </a>
           <div>
-            <a class="cart-line__name" href="/tienda/${encodeURIComponent(item.slug)}">${escapeHtml(item.name)}</a>
+            <a class="cart-line__name" href="${url(`/tienda/${encodeURIComponent(item.slug)}`)}">${escapeHtml(item.name)}</a>
             <div class="cart-line__meta">${escapeHtml(item.size)} &middot; ${formatMoney(item.price)} c/u</div>
             <div class="qty" style="margin-top:.6rem">
               <button type="button" data-cart-decrease aria-label="Restar una unidad">&minus;</button>
@@ -134,7 +136,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       <p style="font-size:.78rem;color:var(--muted);margin-top:.5rem" data-cart-promo-message>
         ${discount > 0 ? `Código ${escapeHtml(promo?.code ?? '')} aplicado.` : 'El descuento se aplica sobre el subtotal.'}
       </p>
-      <a class="btn btn--gold btn--block" href="/checkout" style="margin-top:1.25rem">
+      <a class="btn btn--gold btn--block" href="${url('/checkout')}" style="margin-top:1.25rem">
         Finalizar compra
       </a>
       <p style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:.85rem">

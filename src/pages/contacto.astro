@@ -4,6 +4,7 @@ import Icon from '@/components/Icon.astro';
 import { FAQS } from '@/data/content';
 import { SITE } from '@/data/site';
 import { faqSchema } from '@/lib/seo';
+import { url } from '@/lib/url';
 ---
 
 <BaseLayout
@@ -13,7 +14,7 @@ import { faqSchema } from '@/lib/seo';
 >
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
-      <a href="/">Inicio</a>
+      <a href={url('/')}>Inicio</a>
       <span>/</span>
       <span aria-current="page">Contacto</span>
     </nav>
@@ -203,6 +204,8 @@ import { faqSchema } from '@/lib/seo';
 </BaseLayout>
 
 <script>
+  import { url } from '@/lib/url';
+  import { VISTA_PREVIA, MENSAJE_VISTA_PREVIA } from '@/lib/preview';
   import { escapeHtml } from '@/lib/escape';
 
   const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
@@ -234,8 +237,17 @@ import { faqSchema } from '@/lib/seo';
     const button = form.querySelector('button');
     if (button) button.setAttribute('disabled', 'true');
 
+    // En la vista previa de GitHub Pages no hay API: el formulario no
+    // puede enviarse y se avisa al usuario.
+    if (VISTA_PREVIA) {
+      if (result) {
+        result.innerHTML = `<p class="notice notice--error">${escapeHtml(MENSAJE_VISTA_PREVIA)}</p>`;
+      }
+      return;
+    }
+
     try {
-      const res = await fetch('/api/contact', {
+      const res = await fetch(url('/api/contact'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

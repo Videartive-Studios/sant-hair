@@ -1,10 +1,28 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { LEGAL_DOCS } from '@/data/legal';
+import { LEGAL_DOCS, type LegalDoc } from '@/data/legal';
 import { breadcrumbSchema } from '@/lib/seo';
+import { url } from '@/lib/url';
+
+interface Props {
+  /** El documento, solo en la vista previa estatica (llega por `props`). */
+  doc?: LegalDoc;
+}
+
+/**
+ * En el sitio real la ruta se resuelve en el servidor con el slug de la URL.
+ * En la vista previa estatica (GitHub Pages) no hay servidor, asi que Astro
+ * prerenderiza un archivo por documento y se lo entrega en `props`.
+ */
+export function getStaticPaths() {
+  return LEGAL_DOCS.map((doc) => ({
+    params: { slug: doc.slug },
+    props: { doc },
+  }));
+}
 
 const { slug } = Astro.params;
-const doc = LEGAL_DOCS.find((d) => d.slug === slug);
+const doc = Astro.props.doc ?? LEGAL_DOCS.find((d) => d.slug === slug);
 
 // Un documento legal inexistente es un 404 real.
 if (!doc) {
@@ -32,7 +50,7 @@ const breadcrumbs = [
 >
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
-      <a href="/">Inicio</a>
+      <a href={url('/')}>Inicio</a>
       <span>/</span>
       <span aria-current="page">{doc.title}</span>
     </nav>
@@ -68,7 +86,7 @@ const breadcrumbs = [
           <p style="color:var(--muted);font-size:.93rem">
             Escríbenos y te ayudamos. Respondemos en menos de 24 horas hábiles.
           </p>
-          <a class="btn btn--light" href="/contacto" style="margin-top:1.25rem">
+          <a class="btn btn--light" href={url('/contacto')} style="margin-top:1.25rem">
             Ir a contacto
           </a>
         </div>

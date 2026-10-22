@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { ADMIN_COOKIE, adminEnabled, verifyToken } from '@/lib/auth';
 import { dbInfo } from '@/db/repo';
 
-export const prerender = false;
+export { prerender } from '@/lib/prerender';
 
 const authenticated = verifyToken(Astro.cookies.get(ADMIN_COOKIE)?.value);
 const enabled = adminEnabled();
@@ -110,6 +110,8 @@ const db = dbInfo();
 </BaseLayout>
 
 <script>
+  import { url } from '@/lib/url';
+
   const money = (value: number) =>
     new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -159,7 +161,7 @@ const db = dbInfo();
     event.preventDefault();
     const password = new FormData(loginForm).get('password')?.toString() ?? '';
     try {
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch(url('/api/admin/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -175,7 +177,7 @@ const db = dbInfo();
   });
 
   document.querySelector('[data-admin-logout]')?.addEventListener('click', async () => {
-    await fetch('/api/admin/logout', { method: 'POST' });
+    await fetch(url('/api/admin/logout'), { method: 'POST' });
     window.location.reload();
   });
 
@@ -188,7 +190,7 @@ const db = dbInfo();
   const STATUSES = ['pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'];
 
   async function loadStats() {
-    const res = await fetch('/api/admin/data');
+    const res = await fetch(url('/api/admin/data'));
     if (!res.ok) return;
     const data = await res.json();
     if (!statsEl) return;
@@ -341,7 +343,7 @@ const db = dbInfo();
     if (!panelEl) return;
     panelEl.innerHTML =
       '<div class="summary-card text-center"><p style="color:var(--muted)">Cargando...</p></div>';
-    const res = await fetch(`/api/admin/data?recurso=${recurso}`);
+    const res = await fetch(`${url('/api/admin/data')}?recurso=${recurso}`);
     if (!res.ok) {
       panelEl.innerHTML =
         '<div class="summary-card"><p class="notice notice--error">No se pudo cargar la información.</p></div>';
@@ -367,7 +369,7 @@ const db = dbInfo();
 
     const statusSelect = target.closest<HTMLSelectElement>('[data-order-status]');
     if (statusSelect) {
-      const res = await fetch('/api/admin/data', {
+      const res = await fetch(url('/api/admin/data'), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -386,7 +388,7 @@ const db = dbInfo();
 
     const productInput = target.closest<HTMLInputElement>('[data-product-published]');
     if (productInput) {
-      const res = await fetch('/api/admin/data', {
+      const res = await fetch(url('/api/admin/data'), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -415,7 +417,7 @@ const db = dbInfo();
     )?.value;
 
     button.setAttribute('disabled', 'true');
-    const res = await fetch('/api/admin/data', {
+    const res = await fetch(url('/api/admin/data'), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

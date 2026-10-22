@@ -7,7 +7,8 @@ import { SITE, FEATURES } from '@/data/site';
 import { CATEGORIES } from '@/data/catalog';
 import { TESTIMONIALS } from '@/data/content';
 import { getPublishedProducts } from '@/db/repo';
-import { img } from '@/lib/assets';
+import { imgSrc } from '@/lib/assets';
+import { url } from '@/lib/url';
 
 const products = await getPublishedProducts();
 const newArrivals = [...products].reverse().slice(0, 4);
@@ -49,15 +50,15 @@ const formatMoney = (value: number) =>
           siliconas, cruelty free.
         </p>
         <div class="hero__actions">
-          <a class="btn" href="/tienda">Comprar ahora</a>
-          <a class="btn btn--light" href="/tienda">Ver la tienda</a>
+          <a class="btn" href={url('/tienda')}>Comprar ahora</a>
+          <a class="btn btn--light" href={url('/tienda')}>Ver la tienda</a>
         </div>
       </div>
 
       <div class="hero__media">
         <div class="hero__glow"></div>
         <img
-          src={img('/img/hero-frascos.webp')}
+          src={imgSrc('/img/hero-frascos.webp')}
           alt="Envases de la línea capilar Sant Hair+"
           width="1354"
           height="1161"
@@ -101,10 +102,10 @@ const formatMoney = (value: number) =>
       <div class="category-grid reveal">
         {
           CATEGORIES.map((category) => (
-            <a class="category-card" href={`/tienda?categoria=${category.slug}`}>
+            <a class="category-card" href={url(`/tienda?categoria=${category.slug}`)}>
               <img
                 class="category-card__img"
-                src={img(category.image)}
+                src={imgSrc(category.image)}
                 alt={`${category.name} Sant Hair+`}
                 width="520"
                 height="520"
@@ -136,7 +137,7 @@ const formatMoney = (value: number) =>
           {formatMoney(SITE.freeShippingThreshold)}.
         </p>
         <div class="hero__actions">
-          <a class="btn btn--gold" href="/tienda">Explorar la rutina</a>
+          <a class="btn btn--gold" href={url('/tienda')}>Explorar la rutina</a>
         </div>
         <ul class="promo__list">
           <li><Icon name="recycle" size={17} /> Embalaje ecológico</li>
@@ -146,7 +147,7 @@ const formatMoney = (value: number) =>
       </div>
       <div class="promo__media">
         <img
-          src={img('/img/mockup-negro.webp')}
+          src={imgSrc('/img/mockup-negro.webp')}
           alt="Línea Sant Hair+ completa sobre fondo negro"
           width="1354"
           height="1161"
@@ -164,7 +165,7 @@ const formatMoney = (value: number) =>
           <p class="eyebrow">Recién llegado</p>
           <h2 class="section-head__title">Novedades</h2>
         </div>
-        <a class="link-underline" href="/tienda">Ver todo</a>
+        <a class="link-underline" href={url('/tienda')}>Ver todo</a>
       </div>
 
       <div class="product-grid reveal">
@@ -244,6 +245,8 @@ const formatMoney = (value: number) =>
 </BaseLayout>
 
 <script>
+  import { url } from '@/lib/url';
+  import { VISTA_PREVIA, MENSAJE_VISTA_PREVIA } from '@/lib/preview';
   import { showToast } from '@/scripts/cart';
   import { escapeHtml } from '@/lib/escape';
 
@@ -264,8 +267,17 @@ const formatMoney = (value: number) =>
     const button = form.querySelector('button');
     if (button) button.setAttribute('disabled', 'true');
 
+    // En la vista previa de GitHub Pages no hay API: el formulario no
+    // puede enviarse y se avisa al usuario.
+    if (VISTA_PREVIA) {
+      if (result) {
+        result.innerHTML = `<p class="notice notice--error">${escapeHtml(MENSAJE_VISTA_PREVIA)}</p>`;
+      }
+      return;
+    }
+
     try {
-      const res = await fetch('/api/newsletter', {
+      const res = await fetch(url('/api/newsletter'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

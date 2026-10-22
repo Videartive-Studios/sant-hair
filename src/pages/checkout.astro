@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { PROMO_CODES } from '@/lib/promo';
+import { url } from '@/lib/url';
 ---
 
 <BaseLayout
@@ -10,9 +11,9 @@ import { PROMO_CODES } from '@/lib/promo';
 >
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
-      <a href="/">Inicio</a>
+      <a href={url('/')}>Inicio</a>
       <span>/</span>
-      <a href="/carrito">Carrito</a>
+      <a href={url('/carrito')}>Carrito</a>
       <span>/</span>
       <span aria-current="page">Checkout</span>
     </nav>
@@ -188,6 +189,8 @@ import { PROMO_CODES } from '@/lib/promo';
 </BaseLayout>
 
 <script>
+  import { url } from '@/lib/url';
+  import { VISTA_PREVIA, MENSAJE_VISTA_PREVIA } from '@/lib/preview';
   import {
     getCart,
     cartTotals,
@@ -215,7 +218,7 @@ import { PROMO_CODES } from '@/lib/promo';
       summaryEl.innerHTML = `
         <h2 class="summary-card__title">Tu pedido</h2>
         <p style="color:var(--muted);font-size:.9rem">Tu carrito está vacío.</p>
-        <a class="btn btn--light btn--block" href="/tienda" style="margin-top:1rem">Ir a la tienda</a>`;
+        <a class="btn btn--light btn--block" href="${url('/tienda')}" style="margin-top:1rem">Ir a la tienda</a>`;
       return;
     }
 
@@ -317,8 +320,18 @@ import { PROMO_CODES } from '@/lib/promo';
     const button = form.querySelector('button[type="submit"]');
     if (button) button.setAttribute('disabled', 'true');
 
+    // En la vista previa de GitHub Pages no hay API ni base de datos: el
+    // pedido no se puede registrar y se avisa al usuario.
+    if (VISTA_PREVIA) {
+      if (result) {
+        result.innerHTML = `<p class="notice notice--error">${escapeHtml(MENSAJE_VISTA_PREVIA)}</p>`;
+      }
+      if (button) button.removeAttribute('disabled');
+      return;
+    }
+
     try {
-      const res = await fetch('/api/checkout', {
+      const res = await fetch(url('/api/checkout'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...payload, items, codigo: getPromoCode() }),
@@ -328,7 +341,7 @@ import { PROMO_CODES } from '@/lib/promo';
 
       localStorage.removeItem('santhair:cart:v1');
       clearPromoCode();
-      window.location.href = `/gracias?id=${encodeURIComponent(data.orderId)}&token=${encodeURIComponent(data.token ?? '')}`;
+      window.location.href = `${url('/gracias')}?id=${encodeURIComponent(data.orderId)}&token=${encodeURIComponent(data.token ?? '')}`;
     } catch (error) {
       if (result) {
         result.innerHTML = `<p class="notice notice--error">${escapeHtml((error as Error).message)}</p>`;

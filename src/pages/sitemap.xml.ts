@@ -2,8 +2,9 @@ import type { APIRoute } from 'astro';
 import { getPublishedProducts, getCategories } from '@/db/repo';
 import { BLOG_POSTS } from '@/data/content';
 import { LEGAL_DOCS } from '@/data/legal';
+import { SITE } from '@/data/site';
 
-export const prerender = false;
+export { prerender } from '@/lib/prerender';
 
 const STATIC_ROUTES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
@@ -13,8 +14,10 @@ const STATIC_ROUTES = [
   { path: '/contacto', priority: '0.6', changefreq: 'yearly' },
 ];
 
-export const GET: APIRoute = async ({ site }) => {
-  const base = (site?.toString() ?? 'https://santhair.com').replace(/\/$/, '');
+export const GET: APIRoute = async () => {
+  // El sitemap anuncia siempre las URLs del sitio real, nunca las de la vista
+  // previa de GitHub Pages.
+  const base = SITE.url.replace(/\/$/, '');
   const today = new Date().toISOString().split('T')[0];
 
   const products = await getPublishedProducts();

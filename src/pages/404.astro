@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { url } from '@/lib/url';
 ---
 
 <BaseLayout
@@ -16,8 +17,8 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         al inicio y encontremos lo que buscas.
       </p>
       <div class="cluster" style="justify-content:center;margin-top:2rem">
-        <a class="btn" href="/">Ir al inicio</a>
-        <a class="btn btn--light" href="/tienda">Ver la tienda</a>
+        <a class="btn" href={url('/')}>Ir al inicio</a>
+        <a class="btn btn--light" href={url('/tienda')}>Ver la tienda</a>
       </div>
     </div>
   </section>

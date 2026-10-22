@@ -4,11 +4,32 @@ import ProductCard from '@/components/ProductCard.astro';
 import Icon from '@/components/Icon.astro';
 import { getProduct, getPublishedProducts } from '@/db/repo';
 import { SITE } from '@/data/site';
+import { type Product } from '@/data/catalog';
 import { breadcrumbSchema, productSchema } from '@/lib/seo';
-import { img } from '@/lib/assets';
+import { img, imgSrc } from '@/lib/assets';
+import { url } from '@/lib/url';
+
+interface Props {
+  /** El producto, solo en la vista previa estatica (llega por `props`). */
+  product?: Product;
+}
+
+/**
+ * En el sitio real la ruta se resuelve en el servidor con el slug de la URL y
+ * el catalogo de la base de datos. En la vista previa estatica (GitHub Pages)
+ * no hay servidor, asi que Astro prerenderiza un archivo por producto y se lo
+ * entrega en `props`.
+ */
+export async function getStaticPaths() {
+  const products = await getPublishedProducts();
+  return products.map((product) => ({
+    params: { slug: product.slug },
+    props: { product },
+  }));
+}
 
 const { slug } = Astro.params;
-const product = slug ? await getProduct(slug) : undefined;
+const product = Astro.props.product ?? (slug ? await getProduct(slug) : undefined);
 
 // Un producto que no existe es un 404 real, no una redireccion: el
 // buscador no debe indexar la pagina de error ni perder la URL original.
@@ -50,9 +71,9 @@ const breadcrumbs = [
 >
   <div class="container">
     <nav class="breadcrumb" aria-label="Migas de pan">
-      <a href="/">Inicio</a>
+      <a href={url('/')}>Inicio</a>
       <span>/</span>
-      <a href="/tienda">Tienda</a>
+      <a href={url('/tienda')}>Tienda</a>
       <span>/</span>
       <span aria-current="page">{product.name}</span>
     </nav>
@@ -66,7 +87,7 @@ const breadcrumbs = [
           <div class="pdp__main">
             <img
               id="pdp-main-image"
-              src={img(product.gallery[0])}
+              src={imgSrc(product.gallery[0])}
               alt={`${product.name} Sant Hair+ ${product.size}`}
               width="800"
               height="800"
@@ -84,7 +105,7 @@ const breadcrumbs = [
                     data-gallery-thumb={image}
                     aria-label={`Ver imagen ${index + 1} de ${product.name}`}
                   >
-                    <img src={img(image)} alt="" width="78" height="78" loading="lazy" />
+                    <img src={imgSrc(image)} alt="" width="78" height="78" loading="lazy" />
                   </button>
                 ))}
               </div>
@@ -143,7 +164,7 @@ const breadcrumbs = [
               data-slug={product.slug}
               data-name={product.name}
               data-price={product.price}
-              data-image={img(product.image)}
+              data-image={imgSrc(product.image)}
               data-size={product.size}
               disabled={outOfStock}
             >
@@ -217,7 +238,7 @@ const breadcrumbs = [
               <p class="eyebrow">Combina tu rutina</p>
               <h2 class="section-head__title">También te puede interesar</h2>
             </div>
-            <a class="link-underline" href="/tienda">Ver todo</a>
+            <a class="link-underline" href={url('/tienda')}>Ver todo</a>
           </div>
           <div class="product-grid">
             {related.map((item) => (

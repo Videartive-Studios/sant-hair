@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { ADMIN_COOKIE } from '@/lib/auth';
 
-export const prerender = false;
+export { prerender } from '@/lib/prerender';
 
 export const POST: APIRoute = async ({ cookies }) => {
   cookies.delete(ADMIN_COOKIE, { path: '/' });
